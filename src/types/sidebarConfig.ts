@@ -124,6 +124,13 @@ export interface CalendarWidget {
 	pages?: SidebarPage[];
 	/** 周起始日，默认 mon（周一） */
 	startOfWeek?: "mon" | "sun";
+	/**
+	 * 周名格式（Intl weekday 选项），默认 short：
+	 * - "short"：周一 / Mon
+	 * - "narrow"：一 / M（中文下为 日一二三四五六）
+	 * - "long"：星期一 / Monday
+	 */
+	weekdayFormat?: "short" | "narrow" | "long";
 }
 
 /** 文章目录（仅文章详情页显示） */

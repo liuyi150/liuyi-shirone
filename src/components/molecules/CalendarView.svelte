@@ -14,6 +14,8 @@ interface Props {
 	/** BCP47 locale（由 siteConfig.lang 换算，Intl 用） */
 	locale: string;
 	startOfWeek: "mon" | "sun";
+	/** 周名格式（Intl weekday）：short 周一 / narrow 一 / long 星期一 */
+	weekdayFormat?: "short" | "narrow" | "long";
 	/** dateKey（YYYY-MM-DD）→ 当日文章 */
 	postsByDate: Record<string, CalendarPost[]>;
 	/** 有文章月份列表（升序 YYYY-MM），跳月导航用 */
@@ -26,6 +28,7 @@ interface Props {
 let {
 	locale,
 	startOfWeek = "mon",
+	weekdayFormat = "short",
 	postsByDate,
 	activeMonths = [],
 	backTodayLabel,
@@ -44,14 +47,14 @@ const monthTitle = $derived(
 	),
 );
 
-// 周名：2021-01-03 是周日，由此锚定一周 7 天（Intl weekday short）
+// 周名：2021-01-03 是周日，由此锚定一周 7 天（Intl weekday，格式由 weekdayFormat 决定）
 const weekStartOffset = $derived(startOfWeek === "mon" ? 1 : 0);
 const weekdays = $derived(
 	Array.from({ length: 7 }, (_, i) => {
 		const day = (i + weekStartOffset) % 7;
-		return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
-			new Date(2021, 0, 3 + day),
-		);
+		return new Intl.DateTimeFormat(locale, {
+			weekday: weekdayFormat,
+		}).format(new Date(2021, 0, 3 + day));
 	}),
 );
 

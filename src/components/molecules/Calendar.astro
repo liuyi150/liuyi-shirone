@@ -23,6 +23,7 @@ const className = Astro.props.class;
 const style = Astro.props.style;
 
 const startOfWeek = Astro.props.widget?.startOfWeek ?? "mon";
+const weekdayFormat = Astro.props.widget?.weekdayFormat ?? "short";
 
 // siteConfig.lang 形如 zh_CN / en：替换为 BCP47 供 Intl 使用
 const locale = siteConfig.lang.replace("_", "-");
@@ -35,6 +36,7 @@ const { postsByDate, activeMonths } = await getCalendarData();
 		client:visible
 		{locale}
 		{startOfWeek}
+		{weekdayFormat}
 		{postsByDate}
 		{activeMonths}
 		backTodayLabel={i18n(I18nKey.calendarBackToday)}
