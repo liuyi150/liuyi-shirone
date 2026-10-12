@@ -24,6 +24,8 @@ const style = Astro.props.style;
 
 const startOfWeek = Astro.props.widget?.startOfWeek ?? "mon";
 const weekdayFormat = Astro.props.widget?.weekdayFormat ?? "short";
+// 周名可用独立 locale（默认跟随站点 locale）
+const weekdayLocale = Astro.props.widget?.weekdayLocale ?? locale;
 
 // siteConfig.lang 形如 zh_CN / en：替换为 BCP47 供 Intl 使用
 const locale = siteConfig.lang.replace("_", "-");
@@ -37,6 +39,7 @@ const { postsByDate, activeMonths } = await getCalendarData();
 		{locale}
 		{startOfWeek}
 		{weekdayFormat}
+		{weekdayLocale}
 		{postsByDate}
 		{activeMonths}
 		backTodayLabel={i18n(I18nKey.calendarBackToday)}

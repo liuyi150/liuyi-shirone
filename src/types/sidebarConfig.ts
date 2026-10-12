@@ -131,6 +131,12 @@ export interface CalendarWidget {
 	 * - "long"：星期一 / Monday
 	 */
 	weekdayFormat?: "short" | "narrow" | "long";
+	/**
+	 * 周名使用的 locale（BCP47），默认跟随 siteConfig.lang。
+	 * 例：站点中文但想要英文缩写 Mon/Tue，可配 weekdayLocale: "en-US" +
+	 * weekdayFormat: "short"。
+	 */
+	weekdayLocale?: string;
 }
 
 /** 文章目录（仅文章详情页显示） */

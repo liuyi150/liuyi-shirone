@@ -16,6 +16,8 @@ interface Props {
 	startOfWeek: "mon" | "sun";
 	/** 周名格式（Intl weekday）：short 周一 / narrow 一 / long 星期一 */
 	weekdayFormat?: "short" | "narrow" | "long";
+	/** 周名 locale（BCP47），默认同 locale；用于中文站点显示 Mon/Tue 这类英文缩写 */
+	weekdayLocale?: string;
 	/** dateKey（YYYY-MM-DD）→ 当日文章 */
 	postsByDate: Record<string, CalendarPost[]>;
 	/** 有文章月份列表（升序 YYYY-MM），跳月导航用 */
@@ -29,6 +31,7 @@ let {
 	locale,
 	startOfWeek = "mon",
 	weekdayFormat = "short",
+	weekdayLocale = "",
 	postsByDate,
 	activeMonths = [],
 	backTodayLabel,
@@ -52,7 +55,7 @@ const weekStartOffset = $derived(startOfWeek === "mon" ? 1 : 0);
 const weekdays = $derived(
 	Array.from({ length: 7 }, (_, i) => {
 		const day = (i + weekStartOffset) % 7;
-		return new Intl.DateTimeFormat(locale, {
+		return new Intl.DateTimeFormat(weekdayLocale || locale, {
 			weekday: weekdayFormat,
 		}).format(new Date(2021, 0, 3 + day));
 	}),
