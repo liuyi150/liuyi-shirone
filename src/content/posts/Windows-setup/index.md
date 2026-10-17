@@ -13,7 +13,7 @@ draft: false
 alias: "windows-setup"
 ---
 
-::: warning 本文由 DeepSeek v4.1 Falsh 润色制作
+::: warning 本文由 DeepSeek v4.1 Flash 润色制作
 正文与各节命令经 AI 润色整理；涉及注册表、防火墙与系统服务的操作，请先按第 14 节创建还原点再动手。
 :::
 
@@ -33,7 +33,6 @@ OOBE 指系统首次开机时的引导设置界面。新设备可以先跳过它
 - Windows 11 默认联网即激活设备，跳过 OOBE 也就一并跳过了微软账户登录。
 - 用户名不要用中文，否则部分软件会莫名报错，例如 Steam。
 
-![用户名不要用中文](https://image.coolapk.com/feed/2024/0306/02/13728628_6dc57957_3996_7061_760@572x142.png.m.jpg)
 
 习惯用中文名字的话，用拼音代替。
 
@@ -70,7 +69,6 @@ start ms-cxh:localonly
 systemreset -cleanpc
 ```
 
-![重置选项](https://image.coolapk.com/feed/2024/0306/02/13728628_3d89c62c_3996_7066_561@1436x703.png.m.jpg)
 
 我的 G15 5511（11800H）、ENVY X360（1230U）和 ROG 幻（AMD 6800）都有这个现象，应该不是个例。重装后的系统与预装版本完全一致，可以放心操作。
 
@@ -80,7 +78,6 @@ systemreset -cleanpc
 
 打开 设置 → 系统 → 系统信息 → 相关内容 → 产品密钥和激活，用密钥升级；也可以使用版本转换工具直接更改。
 
-![使用密钥激活](https://image.coolapk.com/feed/2024/0306/02/13728628_b1d54301_3996_7074_305@1416x517.png.m.jpg)
 
 从发布顺序看，家庭版通常先收到更新，企业版稍后推送，个人感觉相当于家庭版用户先替企业版试错。
 
@@ -98,7 +95,6 @@ changepk.exe /productkey XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
 slmgr.vbs /dlv
 ```
 
-![企业版的 22H2](https://image.coolapk.com/feed/2024/0306/02/13728628_bfcf0697_3996_7076_882@1389x376.png.m.jpg)
 
 ## 5. 断网，卸载迈克菲和多余应用
 
@@ -108,7 +104,6 @@ slmgr.vbs /dlv
 - 卸载主程序时若提示重新启动，先不要重启，让 Geek Uninstaller 清理残留文件。
 - 其余可卸载的多为微软自带的 UWP 应用，例如地图、家庭、提示、录音机和小组件。小组件是否保留看需求：它对我只是广告推送页，但有人用它显示手机链接和远程遥控。
 
-![比如“提示”和“录音机”](https://image.coolapk.com/feed/2024/0306/02/13728628_7a656f56_3996_7084_211@600x891.png.m.jpg)
 
 预装的 UWP 应用可以在管理员 PowerShell 里批量清掉。先看一眼都有哪些：
 
@@ -149,11 +144,6 @@ winget uninstall --name "McAfee"
 - 防火墙和网络保护：关闭 Windows 防火墙，否则打开游戏时会弹窗。
 - 按 Win+R 输入 `gpedit.msc` 打开本地组策略编辑器，找到 计算机配置 → 管理模板 → Windows 组件 → Windows 安全中心 → 通知 → 隐藏所有通知，把“未配置”改为“已启用”。这样安全中心不再弹出通知。
 
-![智能应用控制](https://image.coolapk.com/feed/2024/0306/02/13728628_954e2185_3996_7092_48@1920x1130.png.m.jpg)
-![病毒和威胁防护设置](https://image.coolapk.com/feed/2024/0306/02/13728628_3606fc9b_3996_71_62@1920x1200.png.m.jpg)
-![添加排除项](https://image.coolapk.com/feed/2024/0306/02/13728628_588888f9_3996_711_667@689x532.png.m.jpg)
-![关闭防火墙](https://image.coolapk.com/feed/2024/0306/02/13728628_bd81221a_3996_7114_288@1920x1200.png.m.jpg)
-![组策略编辑器](https://image.coolapk.com/feed/2024/0306/02/13728628_4184561f_4000_9011_709@1920x1200.png.m.jpg)
 
 上面几项的等价命令（管理员终端；篡改防护开着时 `Set-MpPreference` 会失败，先在界面里关掉）：
 
@@ -185,7 +175,6 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\CI\Policy" /v VerifiedAndReputabl
 
 部分应用依赖 DirectX 组件，即使不通过游戏平台启动也可能报错。用 DirectX Repair 工具修复一次即可，工具下载与常用运行库清单我整理在 [Windows 常用软件](/posts/cyrjtj/1/) 里。
 
-![DirectX Repair 工具](https://image.coolapk.com/feed/2024/0306/02/13728628_3cec3a9f_4000_9017_367@756x726.png.m.jpg)
 
 不想装第三方工具的话，系统自带的组件修复命令能解决大部分“缺少组件/DLL”的报错，先修映像再修系统文件，完成后重启：
 
@@ -225,22 +214,6 @@ winget install --id Microsoft.DotNet.DesktopRuntime.8
 - Windows 更新 → 高级选项：关闭所有选项；在“其他选项”的传递优化中关闭“允许从其他电脑下载”。
 - 文件资源管理器（按 Win+E 打开）→ 查看：勾选“项目复选框”“文件扩展名”“隐藏的项目”。
 
-![默认图形设置](https://image.coolapk.com/feed/2024/0306/02/13728628_6883a7a9_4000_902_794@765x783.png.m.jpg)
-![请勿打扰](https://image.coolapk.com/feed/2024/0306/02/13728628_9785463e_4000_9023_644@1412x1041.png.m.jpg)
-![电源和电池](https://image.coolapk.com/feed/2024/0306/02/13728628_43108c11_4000_9029_301@1415x1040.png.m.jpg)
-![存储感知](https://image.coolapk.com/feed/2024/0306/02/13728628_63be7215_4000_9032_765@678x970.png.m.jpg)
-![就近共享](https://image.coolapk.com/feed/2024/0306/02/13728628_5e49835a_4000_9037_760@692x452.png.m.jpg)
-![远程桌面](https://image.coolapk.com/feed/2024/0306/02/13728628_a0582218_4000_9045_733@1393x441.png.m.jpg)
-![触摸板](https://image.coolapk.com/feed/2024/0306/02/13728628_963ea049_4000_9052_997@1405x353.png.m.jpg)
-![开始菜单设置](https://image.coolapk.com/feed/2024/0306/02/13728628_6bd32526_4004_4353_603@1406x984.png.m.jpg)
-![任务栏设置](https://image.coolapk.com/feed/2024/0306/02/13728628_3c78a3d4_4004_4363_810@1403x1029.png.m.jpg)
-![桌面图标设置](https://image.coolapk.com/feed/2024/0306/02/13728628_6a07bc28_4004_4369_747@661x816.png.m.jpg)
-![关闭启动项](https://image.coolapk.com/feed/2024/0306/02/13728628_59599fda_4004_4379_540@762x970.png.m.jpg)
-![粘滞键选项](https://image.coolapk.com/feed/2024/0306/02/13728628_de4d76c8_4004_4382_146@1422x734.png.m.jpg)
-![常规](https://image.coolapk.com/feed/2024/0306/02/13728628_45a2398b_4004_4392_148@1423x944.png.m.jpg)
-![诊断和反馈](https://image.coolapk.com/feed/2024/0306/02/13728628_919cb2b4_4004_4394_660@1408x1048.png.m.jpg)
-![传递优化](https://image.coolapk.com/feed/2024/0306/02/13728628_209173fa_4004_4399_654@1407x861.png.m.jpg)
-![显示隐藏的项目](https://image.coolapk.com/feed/2024/0306/02/13728628_abd9157f_4004_4406_487@1920x1200.jpeg.m.jpg)
 
 上面绝大部分开关都能用命令一次设完，省得一层层点（管理员终端，改完注销或重启生效）：
 
@@ -287,7 +260,6 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v La
 
 文件资源管理器还有两处设置：点右侧“…”→ 选项，把“打开文件资源管理器时打开”设为“此电脑”；下方“隐私”中的三个选项（显示最近使用的文件、显示常用文件夹、显示来自 Office.com 的文件）按需勾选，然后保存。
 
-![设置文件资源管理器起始页](https://image.coolapk.com/feed/2024/0306/02/13728628_00dfe624_4008_1915_95@645x857.png.m.jpg)
 
 ## 9. 精简显卡右键菜单，恢复 Windows 10 样式
 
@@ -295,12 +267,10 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v La
 
 | 显卡 | 操作 |
 | --- | --- |
-| AMD（A 卡） | 按 Win+R 输入 `regedit` 打开注册表编辑器，把图中路径下的 `ApplicationId` 重命名为 `0ApplicationId`。 |
+| AMD（A 卡） | 按 Win+R 输入 `regedit` 打开注册表编辑器，找到 `PackagedCom\Package` 下对应 AMD 的包，把 `ApplicationId` 重命名为 `0ApplicationId`。 |
 | NVIDIA（N 卡） | 打开 NVIDIA 控制面板，在左上角“桌面”菜单中取消勾选“显示通知托盘图标”和“添加桌面上下文菜单”。 |
 | Intel（I 卡） | 打开 Intel 显卡控制中心，在设置里隐藏桌面上下文菜单和通知托盘图标。 |
 
-![注册表](https://image.coolapk.com/feed/2024/0306/02/13728628_7adbf341_4008_1921_7@1920x1200.png.m.jpg)
-![NVIDIA 控制面板](https://image.coolapk.com/feed/2024/0306/02/13728628_a6696ff4_4008_1929_758@384x156.png.m.jpg)
 
 AMD 那一步的注册表路径会随驱动版本变化，交给 PowerShell 自己找更稳：把匹配到的 `ApplicationId` 改名后，右键菜单里的 AMD 项就不再出现。
 
@@ -368,7 +338,6 @@ shutdown /s /f /t 0
 
 使用“Windows 11 轻松使用”工具可以关闭不需要的设备服务。关闭系统服务前，建议先按第 14 节创建还原点，以便出现问题时回退。
 
-![“Windows 11 轻松使用”工具](https://image.coolapk.com/feed/2024/0306/02/13728628_d4c6401f_4008_1933_805@1181x636.png.m.jpg)
 
 手工翻服务列表容易误伤，先用命令看清哪些在跑，再逐个处理：
 
@@ -397,11 +366,8 @@ sc stop MicrosoftEdgeElevationService
 sc config MicrosoftEdgeElevationService start= disabled
 ```
 
-![禁止 Edge 自动更新](https://image.coolapk.com/feed/2024/0306/02/13728628_d83e0509_4008_194_943@1440x966.jpeg.m.jpg)
 
-设置完成后效果如下。
 
-![效果](https://image.coolapk.com/feed/2024/0306/02/13728628_c0ea60b9_4008_1944_923@1264x416.png.m.jpg)
 
 另外关闭 Edge 中影响性能的选项。
 
@@ -412,7 +378,6 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v StartupBoostEnabled /t REG_DW
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v BackgroundModeEnabled /t REG_DWORD /d 0 /f
 ```
 
-![Edge 设置](https://image.coolapk.com/feed/2024/0306/02/13728628_537c2d4b_4008_1954_821@1920x1200.png.m.jpg)
 
 ## 13. 检查第三方软件设置
 
@@ -424,11 +389,9 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v BackgroundModeEnabled /t REG_
 
 打开 设置 → 系统 → 系统信息 → 高级系统设置 → 系统保护。
 
-![系统保护](https://image.coolapk.com/feed/2024/0306/02/13728628_9e4ac18d_4008_1961_917@682x840.png.m.jpg)
 
 系统还原点即使系统无法进入也可以使用。
 
-![确认系统还原](https://image.coolapk.com/feed/2024/0306/02/13728628_db3454e8_4008_1969_145@943x836.png.m.jpg)
 
 需要注意：系统还原不会删除个人文件，但会卸载自还原点之后安装的软件。
 
@@ -512,6 +475,5 @@ reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d 0 /f
 
 如果你喜欢 Windows 11 的界面，又希望保留 Windows 10 的操作逻辑，可以靠美化包和第三方工具实现。Windows 10 现已支持大小核调度，兼容性没有问题，实在不行还有补丁可选。AMD 平台出厂预装 Windows 11 的设备，没必要大费周章回退 Windows 10。
 
-![Windows 10 和 11 都有的问题](https://image.coolapk.com/feed/2024/0306/02/13728628_5d3a4b7c_4011_4717_227@1432x556.jpeg.m.jpg)
 
 以上均为个人使用经验，仅供参考。
