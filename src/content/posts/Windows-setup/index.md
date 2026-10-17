@@ -33,6 +33,18 @@ OOBE 指系统首次开机时的引导设置界面。新设备可以先跳过它
 
 习惯用中文名字的话，用拼音代替。
 
+OOBE 界面按 `Shift + F10` 可以调出命令提示符，执行下面的命令，重启后就能选“我没有 Internet 连接 → 继续执行受限设置”，用本地账户进系统：
+
+```cmd
+oobe\bypassnro
+```
+
+22H2 之后的版本移除了它，可以改用下面这条直接创建本地账户：
+
+```cmd
+start ms-cxh:localonly
+```
+
 ## 2. 跳过引导流程的更新页面
 
 预装了 22H2 或更低版本 Windows 11 的用户，引导流程最后一步会出现更新页面。这一步直接跳过即可。
@@ -47,6 +59,12 @@ OOBE 指系统首次开机时的引导设置界面。新设备可以先跳过它
 - 本地重新安装：使用本地隐藏分区安装系统，不改动硬盘分区。
 
 两者效果基本一致，云下载理论上更彻底。
+
+也可以在管理员终端里直接唤起重置向导，少点几层菜单：
+
+```cmd
+systemreset -cleanpc
+```
 
 ![重置选项](https://image.coolapk.com/feed/2024/0306/02/13728628_3d89c62c_3996_7066_561@1436x703.png.m.jpg)
 
@@ -64,6 +82,18 @@ OOBE 指系统首次开机时的引导设置界面。新设备可以先跳过它
 
 注意：撰写本文时，企业版 23H2 尚未正式推送。
 
+不想点设置页面的话，在管理员终端里用 `changepk.exe` 走同样的流程，密钥自己填：
+
+```cmd
+changepk.exe /productkey XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
+```
+
+升级完成后用 `slmgr.vbs` 确认版本与激活状态：
+
+```cmd
+slmgr.vbs /dlv
+```
+
 ![企业版的 22H2](https://image.coolapk.com/feed/2024/0306/02/13728628_bfcf0697_3996_7076_882@1389x376.png.m.jpg)
 
 ## 5. 断网，卸载迈克菲和多余应用
@@ -75,6 +105,35 @@ OOBE 指系统首次开机时的引导设置界面。新设备可以先跳过它
 - 其余可卸载的多为微软自带的 UWP 应用，例如地图、家庭、提示、录音机和小组件。小组件是否保留看需求：它对我只是广告推送页，但有人用它显示手机链接和远程遥控。
 
 ![比如“提示”和“录音机”](https://image.coolapk.com/feed/2024/0306/02/13728628_7a656f56_3996_7084_211@600x891.png.m.jpg)
+
+预装的 UWP 应用可以在管理员 PowerShell 里批量清掉。先看一眼都有哪些：
+
+```powershell
+Get-AppxPackage -AllUsers |
+  Select-Object Name, PackageFullName |
+  Sort-Object Name | Format-Table -AutoSize
+```
+
+再按需删除（`$names` 换成你要清的应用）：
+
+```powershell
+$names = 'BingMaps','BingWeather','ZuneMusic','ZuneVideo','Clipchamp','MicrosoftTeams',
+         'WindowsFeedbackHub','MicrosoftSolitaireCollection','Microsoft.People',
+         'Microsoft.MixedReality.Portal'
+Get-AppxPackage -AllUsers | Where-Object Name -in $names | Remove-AppxPackage -AllUsers
+
+# 同时移除预置包，避免新建用户后又被装回来
+Get-AppxProvisionedPackage -Online |
+  Where-Object DisplayName -match 'Bing|Zune|Clipchamp|Teams|Feedback|Solitaire|People|MixedReality' |
+  Remove-AppxProvisionedPackage -Online
+```
+
+迈克菲这类传统程序仍建议用 Geek Uninstaller（能连服务、计划任务和注册表一起清）。想用命令行的话，先列出来再卸载：
+
+```powershell
+winget list --name McAfee
+winget uninstall --name "McAfee"
+```
 
 ## 6. 设置 Windows 安全中心（新手请谨慎）
 
@@ -92,6 +151,28 @@ OOBE 指系统首次开机时的引导设置界面。新设备可以先跳过它
 ![关闭防火墙](https://image.coolapk.com/feed/2024/0306/02/13728628_bd81221a_3996_7114_288@1920x1200.png.m.jpg)
 ![组策略编辑器](https://image.coolapk.com/feed/2024/0306/02/13728628_4184561f_4000_9011_709@1920x1200.png.m.jpg)
 
+上面几项的等价命令（管理员终端；篡改防护开着时 `Set-MpPreference` 会失败，先在界面里关掉）：
+
+```powershell
+# 关闭实时保护、云提供的保护、自动提交样本
+Set-MpPreference -DisableRealtimeMonitoring $true
+Set-MpPreference -MAPSReporting Disabled -SubmitSamplesConsent NeverSend
+
+# 按分区添加排除项
+Add-MpPreference -ExclusionPath 'C:\', 'D:\', 'E:\'
+
+# 关闭三个方向的 Windows 防火墙
+Set-NetFirewallProfile -Profile Domain, Private, Public -Enabled False
+```
+
+```cmd
+:: 安全中心 → 通知：隐藏所有通知（等价于组策略里的“已启用”）
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications" /v DisableNotifications /t REG_DWORD /d 1 /f
+
+:: 智能应用控制：0 = 关闭，1 = 评估，2 = 开启
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\CI\Policy" /v VerifiedAndReputablePolicyState /t REG_DWORD /d 0 /f
+```
+
 按以上设置，电脑基本处于无防护状态。请根据需要恢复安全中心的防护，或改用第三方杀毒软件。
 
 不建议移除或屏蔽安全中心：它已集成在系统中，移除会导致系统不稳定；屏蔽可能让部分软件的运行环境异常，即使之后恢复，也有概率继续报错。
@@ -101,6 +182,20 @@ OOBE 指系统首次开机时的引导设置界面。新设备可以先跳过它
 部分应用依赖 DirectX 组件，即使不通过游戏平台启动也可能报错。用 DirectX Repair 工具修复一次即可。
 
 ![DirectX Repair 工具](https://image.coolapk.com/feed/2024/0306/02/13728628_3cec3a9f_4000_9017_367@756x726.png.m.jpg)
+
+不想装第三方工具的话，系统自带的组件修复命令能解决大部分“缺少组件/DLL”的报错，先修映像再修系统文件，完成后重启：
+
+```cmd
+DISM /Online /Cleanup-Image /RestoreHealth
+sfc /scannow
+```
+
+如果报错的是 VC++ 运行库或 .NET 桌面运行时缺失，用 winget 直接补齐：
+
+```powershell
+winget install --id Microsoft.VCRedist.2015+.x64
+winget install --id Microsoft.DotNet.DesktopRuntime.8
+```
 
 ## 8. 系统设置逐项检查
 
@@ -143,6 +238,49 @@ OOBE 指系统首次开机时的引导设置界面。新设备可以先跳过它
 ![传递优化](https://image.coolapk.com/feed/2024/0306/02/13728628_209173fa_4004_4399_654@1407x861.png.m.jpg)
 ![显示隐藏的项目](https://image.coolapk.com/feed/2024/0306/02/13728628_abd9157f_4004_4406_487@1920x1200.jpeg.m.jpg)
 
+上面绝大部分开关都能用命令一次设完，省得一层层点（管理员终端，改完注销或重启生效）：
+
+```cmd
+:: 隐私和安全性 → 常规：关闭广告 ID、应用启动跟踪、建议内容、静默安装应用
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v Enabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_TrackProgs /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338389Enabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 0 /f
+
+:: 系统 → 就近共享：关闭
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v EnableMmx /t REG_DWORD /d 0 /f
+
+:: 系统 → 远程桌面：关闭
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 1 /f
+
+:: 个性化 → 任务栏：关闭“聊天”
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarMn /t REG_DWORD /d 0 /f
+
+:: 个性化 → 锁屏界面：关闭花絮、提示、技巧
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v RotatingLockScreenOverlayEnabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338387Enabled /t REG_DWORD /d 0 /f
+
+:: 隐私和安全性 → 诊断和反馈：反馈频率设为“从不”
+reg add "HKCU\Software\Microsoft\Siuf\Rules" /v NumberOfSIUFInPeriod /t REG_DWORD /d 0 /f
+
+:: 隐私和安全性 → 活动历史记录：不存储、不上传
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v EnableActivityFeed /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v PublishUserActivities /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v UploadUserActivities /t REG_DWORD /d 0 /f
+
+:: Windows 更新 → 传递优化：不从其它电脑下载（0 = 只走 HTTP）
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" /v DODownloadMode /t REG_DWORD /d 0 /f
+
+:: 辅助功能 → 粘滞键：关闭全部快捷方式（506 = 全关）
+reg add "HKCU\Control Panel\Accessibility\StickyKeys" /v Flags /t REG_SZ /d 506 /f
+
+:: 文件资源管理器：项目复选框、文件扩展名、隐藏的项目、打开“此电脑”
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v AutoCheckSelect /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Hidden /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 1 /f
+```
+
 文件资源管理器还有两处设置：点右侧“…”→ 选项，把“打开文件资源管理器时打开”设为“此电脑”；下方“隐私”中的三个选项（显示最近使用的文件、显示常用文件夹、显示来自 Office.com 的文件）按需勾选，然后保存。
 
 ![设置文件资源管理器起始页](https://image.coolapk.com/feed/2024/0306/02/13728628_00dfe624_4008_1915_95@645x857.png.m.jpg)
@@ -160,6 +298,19 @@ OOBE 指系统首次开机时的引导设置界面。新设备可以先跳过它
 ![注册表](https://image.coolapk.com/feed/2024/0306/02/13728628_7adbf341_4008_1921_7@1920x1200.png.m.jpg)
 ![NVIDIA 控制面板](https://image.coolapk.com/feed/2024/0306/02/13728628_a6696ff4_4008_1929_758@384x156.png.m.jpg)
 
+AMD 那一步的注册表路径会随驱动版本变化，交给 PowerShell 自己找更稳：把匹配到的 `ApplicationId` 改名后，右键菜单里的 AMD 项就不再出现。
+
+```powershell
+Get-ChildItem 'HKLM:\SOFTWARE\Classes\PackagedCom\Package' |
+  Where-Object PSChildName -like 'AdvancedMicroDevicesInc*' |
+  ForEach-Object {
+    $server = Join-Path $_.PSPath 'Server\0'
+    if (Get-ItemProperty -Path $server -Name ApplicationId -ErrorAction SilentlyContinue) {
+      Rename-ItemProperty -Path $server -Name ApplicationId -NewName 0ApplicationId
+    }
+  }
+```
+
 第二步，把 Windows 11 的右键菜单换回 Windows 10 样式。打开 CMD 或终端，执行下面的命令：
 
 ```cmd
@@ -167,6 +318,12 @@ reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\Inpr
 ```
 
 命令的作用是清除该 CLSID 的默认值，让系统使用旧版右键菜单。执行后重启资源管理器或重启电脑即可生效。
+
+不想重启电脑的话，重启一次资源管理器就够了：
+
+```cmd
+taskkill /f /im explorer.exe & start explorer
+```
 
 ## 10. 停用休眠文件，关闭快速启动
 
@@ -182,6 +339,19 @@ powercfg -h off
 
 如果该方法无效，可以执行 `powercfg /h on` 让“快速启动”选项重新出现，再打开 控制面板 → 电源选项 → 选择电源按钮的功能，手动关闭快速启动。
 
+其它几条相关命令：
+
+```cmd
+:: 查看本机支持与当前生效的睡眠状态（S1–S4、快速启动）
+powercfg /a
+
+:: 只关快速启动，保留休眠功能
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v HiberbootEnabled /t REG_DWORD /d 0 /f
+
+:: 真正的完全关机（快速启动开着时，“关机”只是混合关机）
+shutdown /s /f /t 0
+```
+
 为什么建议关闭：
 
 系统工作状态分为 S1 到 S4 四种，快速启动属于 S4。关机后设备并未完全断电，而是处于极低功耗状态，关机前内存中的数据会写入硬盘，下次开机时再读回内存。硬件层面它仍属于关机，系统层面则多了“写入内存转储、开机读回”这一步。
@@ -196,9 +366,32 @@ powercfg -h off
 
 ![“Windows 11 轻松使用”工具](https://image.coolapk.com/feed/2024/0306/02/13728628_d4c6401f_4008_1933_805@1181x636.png.m.jpg)
 
+手工翻服务列表容易误伤，先用命令看清哪些在跑，再逐个处理：
+
+```powershell
+# 列出正在运行的服务（服务名比显示名可靠）
+Get-Service | Where-Object Status -eq 'Running' |
+  Sort-Object DisplayName | Format-Table -AutoSize Name, DisplayName
+
+# 例：停用诊断跟踪服务，并设为手动启动以便随时恢复
+Stop-Service -Name 'DiagTrack' -Force
+Set-Service  -Name 'DiagTrack' -StartupType Manual
+```
+
 ## 12. Edge 浏览器设置
 
 禁止 Edge 自动更新：按 Win+R 输入 `services.msc` 打开服务页面，找到两个 Microsoft Edge 更新服务，把启动类型都改为“禁用”。
+
+服务页面里那两个 Edge 更新服务也能用命令一次改完（管理员终端）：
+
+```cmd
+sc stop edgeupdate
+sc config edgeupdate start= disabled
+sc stop edgeupdatem
+sc config edgeupdatem start= disabled
+sc stop MicrosoftEdgeElevationService
+sc config MicrosoftEdgeElevationService start= disabled
+```
 
 ![禁止 Edge 自动更新](https://image.coolapk.com/feed/2024/0306/02/13728628_d83e0509_4008_194_943@1440x966.jpeg.m.jpg)
 
@@ -207,6 +400,13 @@ powercfg -h off
 ![效果](https://image.coolapk.com/feed/2024/0306/02/13728628_c0ea60b9_4008_1944_923@1264x416.png.m.jpg)
 
 另外关闭 Edge 中影响性能的选项。
+
+影响性能的那几项也能直接写进注册表（启动增强、关闭后继续在后台运行）：
+
+```cmd
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v StartupBoostEnabled /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v BackgroundModeEnabled /t REG_DWORD /d 0 /f
+```
 
 ![Edge 设置](https://image.coolapk.com/feed/2024/0306/02/13728628_537c2d4b_4008_1954_821@1920x1200.png.m.jpg)
 
@@ -227,6 +427,20 @@ powercfg -h off
 ![确认系统还原](https://image.coolapk.com/feed/2024/0306/02/13728628_db3454e8_4008_1969_145@943x836.png.m.jpg)
 
 需要注意：系统还原不会删除个人文件，但会卸载自还原点之后安装的软件。
+
+命令行版更省事：开保护、立刻建一个还原点，顺手解除“24 小时只能建一个”的限制。
+
+```powershell
+# 为 C 盘开启系统保护，其它分区换盘符即可
+Enable-ComputerRestore -Drive 'C:\'
+
+# 立刻创建一个还原点
+Checkpoint-Computer -Description 'tweak-before' -RestorePointType MODIFY_SETTINGS
+
+# 默认每 24 小时才能建一个还原点，反复折腾时把限制关掉
+Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore' `
+  -Name SystemRestorePointCreationFrequency -Value 0 -Type DWord
+```
 
 ## 15. 不建议新手做的操作
 
@@ -251,6 +465,42 @@ powercfg -h off
 - 在控制面板中关闭“提高鼠标精准度”。早期鼠标使用内置橡胶轮，现在多为光电组件，该选项没有保留必要。
 
 - AMD 平台可以尝试在设备管理器 → 系统设备中停用“高精度时间计时器”。据称能提升游戏帧数，实测差距约 1–2 帧。
+
+也可以直接用 PowerShell 找出来停用，省得在设备管理器里一层层翻：
+
+```powershell
+Get-PnpDevice -Class System |
+  Where-Object FriendlyName -match '高精度|High Precision' |
+  Disable-PnpDevice -Confirm:$false
+```
+
+这一节里能用命令完成的几项，一并放在这里（均在管理员终端执行）：
+
+```cmd
+:: 关闭内存完整性（HVCI）
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v Enabled /t REG_DWORD /d 0 /f
+
+:: 关闭 Hyper-V 启动层（VBS 依赖它），用模拟器/虚拟机的人别执行
+bcdedit /set hypervisorlaunchtype off
+
+:: 确认启动配置已写入
+bcdedit /enum {current}
+```
+
+```cmd
+:: 查看本机全部电源计划与 GUID
+powercfg /list
+
+:: 切回平衡模式
+powercfg /setactive SCHEME_BALANCED
+```
+
+```cmd
+:: 关闭“提高鼠标精准度”，等价于把鼠标曲线三个值清零
+reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d 0 /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d 0 /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d 0 /f
+```
 
 ## 17. 选 Windows 10 还是 Windows 11
 
