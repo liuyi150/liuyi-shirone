@@ -9,7 +9,7 @@ alias: "windows-setup"
 ---
 
 ::: warning 本文由 DeepSeek v4.1 Flash 润色制作
-正文与各节命令经 AI 润色整理；涉及注册表、防火墙与系统服务的操作，请先按第 14 节创建还原点再动手。
+正文与各节命令经 AI 润色整理；涉及注册表、防火墙与系统服务的操作，请先按第 12 节创建还原点再动手。
 :::
 
 网上少见 Windows 11 的系统设置教程，这里结合自己的使用体验整理一份清单，按从装机到日常使用的顺序排列。
@@ -58,7 +58,7 @@ start ms-cxh:localonly
 
 预装了 22H2 或更低版本 Windows 11 的用户，引导流程最后一步会出现更新页面。这一步直接跳过即可。
 
-## 5. 断网，卸载迈克菲和多余应用
+## 3. 断网，卸载迈克菲和多余应用
 
 先断开网络，再用 Geek Uninstaller 卸载不需要的预装软件。断网是为了阻止 Windows 更新在后台下载补丁。
 
@@ -94,6 +94,7 @@ Write-Host '完成。误删的话可以在 Microsoft Store 里重新装回来。
 ```
 
 > 存成 `.ps1` 再运行的话，请用 **UTF-8 with BOM** 保存（VS Code 右下角切编码，或直接在 PowerShell ISE 里粘贴运行）。Windows PowerShell 5.1 默认按 ANSI 读脚本，中文提示会乱码甚至报语法错。
+
 迈克菲这类传统程序仍建议用 Geek Uninstaller（能连服务、计划任务和注册表一起清）。
 
 ### 工具现状（截至 2026 年 10 月）
@@ -107,11 +108,11 @@ Write-Host '完成。误删的话可以在 Microsoft Store 里重新装回来。
 | Sparkle | 待核实 | 集成清理、DNS、SFC/DISM 等维护项的一站式工具 |
 | Dism++ | 最后版本 v10.1.1002.2 | **历史工具，仅作了解**。自 2023 年起实质停更，对新版本 Windows 的组件与清理规则支持有限，不宜再当主力优化工具 |
 
-需要提醒：这类批量工具默认会关掉一部分系统功能（搜索、遥测、Copilot 类组件等），跑完务必按第 8 节逐条复查，别把你实际要用的功能顺手关掉。
+需要提醒：这类批量工具默认会关掉一部分系统功能（搜索、遥测、Copilot 类组件等），跑完务必按第 6 节逐条复查，别把你实际要用的功能顺手关掉。
 
-## 6. 设置 Windows 安全中心（新手请谨慎）
+## 4. 设置 Windows 安全中心（新手请谨慎）
 
-关闭实时防护能减少扫描开销，但电脑会处于无防护状态。不清楚用途就不要修改，或先创建还原点（见第 14 节）。
+关闭实时防护能减少扫描开销，但电脑会处于无防护状态。不清楚用途就不要修改，或先创建还原点（见第 12 节）。
 
 - 应用和浏览器控制 → 智能应用控制设置：“评估”改为“关闭”。智能应用控制会扫描正在启动的应用，拖慢启动速度。
 - 病毒和威胁防护 → 病毒和威胁防护设置：暂时关闭实时保护、云提供的保护、自动提交样本和篡改防护。
@@ -153,7 +154,7 @@ foreach ($k in ($pick -split ',')) {
 
 不建议移除或屏蔽安全中心：它已集成在系统中，移除会导致系统不稳定；屏蔽可能让部分软件的运行环境异常，即使之后恢复，也有概率继续报错。
 
-## 7. 修复 DirectX 组件
+## 5. 修复 DirectX 组件
 
 部分应用依赖 DirectX 组件，即使不通过游戏平台启动也可能报错。而系统自带的组件修复命令能解决大部分“缺少组件/DLL”的报错，先修映像再修系统文件，完成后重启：
 
@@ -170,7 +171,7 @@ winget install --id Microsoft.DotNet.DesktopRuntime.8
 ```
 还是报错? 用 DirectX Repair 工具修复一次即可，下载与常用运行库清单我整理在 [Windows 常用软件](/posts/cyrjtj/1/) 里。
 
-## 8. 系统设置逐项检查
+## 6. 系统设置逐项检查
 
 以下各项按“设置路径：操作”的形式排列，按需调整。
 
@@ -282,7 +283,7 @@ foreach ($k in ($pick -split ',')) {
 Write-Host '注销或重启后生效。' -ForegroundColor Yellow
 ```
 
-## 9. 精简显卡右键菜单，恢复 Windows 10 样式
+## 7. 精简显卡右键菜单，恢复 Windows 10 样式
 
 第一步，按显卡品牌去掉右键菜单里的多余项（NVIDIA app 与驱动的下载链接见 [Windows 常用软件](/posts/cyrjtj/1/)）。
 
@@ -319,7 +320,7 @@ Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
 Start-Process explorer
 ```
 
-## 10. 停用休眠文件，关闭快速启动
+## 8. 停用休眠文件，关闭快速启动
 
 系统装在 SSD 上时，建议关闭快速启动。
 
@@ -354,11 +355,45 @@ shutdown /s /f /t 0
 
 如果设备配置较低，且目前没有出现故障，则不建议关闭。
 
-## 11. 关闭不需要的设备服务
+## 9. 关闭不需要的设备服务
 
-使用“Windows 11 轻松使用”工具可以关闭不需要的设备服务。关闭系统服务前，建议先按第 14 节创建还原点，以便出现问题时回退。
+使用“Windows 11 轻松使用”工具可以关闭不需要的设备服务。关闭系统服务前，建议先按第 12 节创建还原点，以便出现问题时回退。
 
-## 12. Edge 浏览器设置
+手工翻服务列表容易误伤，先用脚本看清哪些在自动启动并运行，再按序号停用（停用时把启动类型改成“手动”，随时能改回来）：
+
+```powershell
+# 列出正在运行的自动启动服务，按序号停用
+$list = @(Get-Service |
+    Where-Object { $_.Status -eq 'Running' -and $_.StartType -eq 'Automatic' } |
+    Sort-Object DisplayName |
+    ForEach-Object -Begin { $i = 0 } -Process {
+        [pscustomobject]@{ No = ++$i; Name = $_.Name; Display = $_.DisplayName }
+    })
+
+$list | Select-Object No, Name, Display | Format-Table -AutoSize
+
+$pick = Read-Host '输入要停用的服务序号（逗号分隔，回车退出）'
+if (-not $pick) { return }
+
+foreach ($k in ($pick -split ',')) {
+    $idx = [int]$k.Trim() - 1
+    if ($idx -lt 0 -or $idx -ge $list.Count) {
+        Write-Host "跳过 $k" -ForegroundColor DarkYellow
+        continue
+    }
+    $svc = $list[$idx]
+    try {
+        Stop-Service -Name $svc.Name -Force -ErrorAction Stop
+        Set-Service -Name $svc.Name -StartupType Manual -ErrorAction Stop
+        Write-Host "已停用：$($svc.Display)（启动类型已改为手动）" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "失败：$($svc.Display) — $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+```
+
+## 10. Edge 浏览器设置
 
 禁止 Edge 自动更新：按 Win+R 输入 `services.msc` 打开服务页面，找到两个 Microsoft Edge 更新服务，把启动类型都改为“禁用”。
 
@@ -386,11 +421,11 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v BackgroundModeEnabled /t REG_
 ```
 
 
-## 13. 检查第三方软件设置
+## 11. 检查第三方软件设置
 
 逐个检查已安装的第三方软件，关闭不需要的功能、弹窗和广告。两篇现成的例子：[给 Steam 加点得劲魔法❤️ — Steam 优化小技巧](/posts/steam-extension/steam-extension/) 是改软件本身的设置，[去除 获取打开此'ms-gamebar'链接的应用 的弹窗](/posts/tanchaung/no/) 是清系统层面的骚扰弹窗。
 
-## 14. 设置系统还原
+## 12. 设置系统还原
 
 建议开启系统还原。它能在软件故障时把系统回退到某个时间点，作为应急手段。
 
@@ -416,7 +451,7 @@ Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemResto
   -Name SystemRestorePointCreationFrequency -Value 0 -Type DWord
 ```
 
-## 15. 不建议新手做的操作
+## 13. 不建议新手做的操作
 
 - 修改系统文件和注册表。
 - 使用第三方杀毒软件更改系统设置。
@@ -426,7 +461,7 @@ Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemResto
 - 使用第三方软件修改引导文件。
 - 更换系统默认字体。
 
-## 16. 其他经验
+## 14. 其他经验
 
 - 网上常见的“优化教程”多建议关闭系统动画来提升性能，实际收益有限。目前被证实有效的调整主要是两项：
 
@@ -499,6 +534,6 @@ foreach ($k in ($pick -split ',')) {
 }
 ```
 
-## 17. 选 Windows 10 还是 Windows 11
+## 15. 选 Windows 10 还是 Windows 11
 
 如果你喜欢 Windows 11 的界面，又希望保留 Windows 10 的操作逻辑，可以靠美化包和第三方工具实现。Windows 10 现已支持大小核调度，兼容性没有问题，实在不行还有补丁可选。AMD 平台出厂预装 Windows 11 的设备，没必要大费周章回退 Windows 10。
