@@ -1,13 +1,8 @@
 ---
-title: 个人向 Windows 11 系统设置指南
-published: 2026-10-16
-description: 从跳过 OOBE、重装系统、卸载预装软件，到安全中心、隐私选项、快速启动和电源计划，按操作顺序整理的个人向 Windows 11 设置清单。
-image: http://image.coolapk.com/feed_cover/2024/0306/02/13728628_f488ff91_3995_3019_520@1284x577.jpeg
-tags:
-  - Windows11
-  - 系统优化
-  - 电脑玩家
-  - 笔记本电脑
+title: Windows 11 系统设置指北
+published: 2026-10-17
+description: Win 11 不好用? 跟我一起操作一下吧!
+tags: [Windows11, 系统优化, 电脑玩家, 笔记本电脑]
 category: 系统折腾
 draft: false
 alias: "windows-setup"
@@ -17,51 +12,24 @@ alias: "windows-setup"
 正文与各节命令经 AI 润色整理；涉及注册表、防火墙与系统服务的操作，请先按第 14 节创建还原点再动手。
 :::
 
-::: note 时间基准与核实说明
-原文写于企业版 22H2 / 23H2 时期。本次按 **2026 年 10 月** 的生态做就地更新，保留原有章节框架与原理讲解，对过时之处采用“更新 / 替换 / 补充 / 标注需核实”处理。
-
-- **已联网核对**（2026 年 10 月查项目页）：Rufus v4.15（2026-06-30）、Ventoy v1.1.18（2026-10-09）、Win11Debloat Release 2026.08.24、Winhance v26.06.12、tiny11builder 最新 release winui-v0.1.2（2026-10-15）、Dism++ 最后版本 v10.1.1002.2（2023-03-26，此后未再发布）。
-- **未能逐条核对**：Geek Uninstaller、DirectX Repair、ZyperWin++、Sparkle、Microsoft PC Manager 等只写用途，版本号标“待核实”，请以官网/项目页为准。
-- **需实机验证**：涉及 26H2 的 OOBE 命令、设置路径与版本推送策略，均标注“需在 26H2 实机核实”，不视为已验证结论。
-:::
-
 网上少见 Windows 11 的系统设置教程，这里结合自己的使用体验整理一份清单，按从装机到日常使用的顺序排列。
-
-先说两点：
-
-- 本文是个人向记录，部分选项见仁见智，请按自己的需求取舍。
-- 厂商预装的系统比微软官网镜像（原版）更臃肿，所以本文以厂商版为例。
 
 ## 0. 装机前的准备：镜像与启动盘
 
-原文从“重置此电脑”切入，那是不换硬盘的原地重装。如果要从零装一台机器，这一步之前还有三件事要定：镜像从哪来、启动盘怎么做、要不要在镜像层面就精简。
+如果要从零装一台机器，这一步之前还有三件事要定：镜像从哪来、启动盘怎么做、要不要在镜像层面就精简。
 
 ### 镜像：优先拉集成累积更新的版本
 
 UUP Dump 这类工具直接向微软更新服务器取包合成 ISO，可选目标版本（家庭/专业/企业）、语言与架构，并把当月累积更新一并打进镜像。好处是装完不用再排一轮补丁队列，补丁体积动辄数 GB 的月份差别很明显。
 
-- 需要稳定基线时直接取企业版镜像，比“装家庭版再转换”少一步风险（见第 4 节）；
-- 合成后建议校验 SHA-256，并先在一台次要设备上装一次确认可用。
+- 建议直接选择专业版 (Windows 10/11 Pro), 是 Windows 最好用的版本.
+- 合成后建议校验 SHA-256，确认文件下载正确
 
-### 启动盘：Rufus 与 Ventoy 的分工
+### 制作启动盘：Rufus 与 Ventoy
 
-| 工具 | 当前版本 | 适用场景 | 注意 |
-| --- | --- | --- | --- |
-| Rufus | v4.15（2026-06-30，已核对） | 单镜像刻录，装机首选 | 4.14 起提供无人值守“静默安装”模式，可自动部署并在安装阶段禁用 Teams、Outlook 等预装应用；4.15 增加 RISC-V 64 UEFI 支持（普通 x86 机器用不到）。功能细节以官方发布说明为准 |
-| Ventoy | v1.1.18（2026-10-09，已核对） | 一个盘放多个 ISO，做维护盘 | 把镜像拷进数据分区即可引导，不用反复刻盘；近期版本实验性支持 SteamOS 恢复镜像直接启动，并持续修 Linux 发行版的启动兼容问题。代价是特殊镜像与 Secure Boot 场景的兼容性不如 Rufus 稳 |
-
-结论：只装一次 Windows，用 Rufus 刻盘最省事；经常替人装系统、还要带 PE 和 Linux 的，用 Ventoy 维护盘。
-
-Rufus 的静默安装选项和通用的 `autounattend.xml` 应答文件，可以把“建本地账户、跳过 OOBE 联机、分区、语言”一次性预设好——这是目前比现场手点更可靠的路线，第 1 节的命令可以作为不方便改盘时的备选。
-
-### 镜像层面精简：Tiny11 路线
-
-Tiny11 / Tiny11 Builder 是另一条思路：不装完再卸，而是在镜像阶段就去组件。Builder 已经过重新设计（仓库最新 release 为 winui-v0.1.2，2026-10-15，已核对），可靠性比早期脚本版好，并跟随支持到 26H2。
-
-- 优点是装完体积小、预装少；代价是后续功能更新的兼容性风险要自己承担，不适合主力工作机；
-- 想保留可回退性，优先用“原版镜像 + 装完跑批量精简脚本”（第 5 节），而不是动镜像本身。
-
-> 需在 26H2 实机核实：Tiny11 Builder 的裁剪白名单是否覆盖 26H2 新增的组件包；UUP Dump 合成镜像在 26H2 上的可用性。
+这里推荐使用 Rufus 或 Ventoy, 简单来说, Rufus 只能安装一个系统, Ventoy 可以安装多个系统.
+PE 推荐使用 FirPE
+Rufus 的静默安装选项和通用的 `autounattend.xml` 应答文件，可以把“建本地账户、跳过 OOBE 联机、分区、语言”一次性预设好
 
 ## 1. 跳过 OOBE 和微软账户登录
 
@@ -70,10 +38,7 @@ OOBE 指系统首次开机时的引导设置界面。新设备可以先跳过它
 - 预装 Windows 11 的新设备，联网激活后可能影响退换货，建议先跳过 OOBE，以后登录。
 - 早期版本 Windows 10（1803–1903）在 OOBE 登录账户有概率造成占用过高。Windows 11 少见这个问题，可以直接登录，省去进系统后再登录一次的麻烦。
 - Windows 11 默认联网即激活设备，跳过 OOBE 也就一并跳过了微软账户登录。
-- 用户名不要用中文，否则部分软件会莫名报错，例如 Steam。
-
-
-习惯用中文名字的话，用拼音代替。
+- 用户名不要用中文，否则部分软件会莫名报错，例如 Steam。习惯用中文名字的话，用拼音代替。
 
 OOBE 界面按 `Shift + F10` 可以调出命令提示符，执行下面的命令，重启后就能选“我没有 Internet 连接 → 继续执行受限设置”，用本地账户进系统：
 
@@ -87,61 +52,11 @@ oobe\bypassnro
 start ms-cxh:localonly
 ```
 
-> 更新与核实提示（截至 2026 年 10 月）：`bypassnro` 在 22H2 之后的版本被微软移除，`start ms-cxh:localonly` 属于社区流传的替代做法——两者在 26H2 上是否仍然可用，**需在 26H2 实机核实**。更稳的路线是在做启动盘时就用 Rufus 的静默安装选项或 `autounattend.xml` 预置本地账户（见第 0 节），不必在 OOBE 现场跟命令搏斗。
+> 更新与核实提示（截至 2026 年 10 月）：`bypassnro` 在 22H2 之后的版本被微软移除，`start ms-cxh:localonly` 属于社区流传的替代做法——两者在 26H2 上是否仍然可用，**需在 26H2 实机核实**。
 
 ## 2. 跳过引导流程的更新页面
 
 预装了 22H2 或更低版本 Windows 11 的用户，引导流程最后一步会出现更新页面。这一步直接跳过即可。
-
-> 补充（截至 2026 年 10 月）：这是 22H2 及更早版本引导流程的特征，新机与新镜像基本不会遇到。26H2 的 OOBE 流程是否有新变化，**需在 26H2 实机核实**。
-
-## 3. 重装一次系统
-
-进桌面后，用“重置此电脑”重新安装一次系统。新机首次激活后几天内容易出现卡顿、绿屏，激活后重装一次就能解决。
-
-打开 设置 → 系统 → 恢复 → 重置此电脑，有两种方式：
-
-- 云下载：删除硬盘内全部文件，并从网络下载系统，不改动硬盘分区。
-- 本地重新安装：使用本地隐藏分区安装系统，不改动硬盘分区。
-
-两者效果基本一致，云下载理论上更彻底。
-
-> 补充（截至 2026 年 10 月）：如果镜像是第 0 节里用 UUP Dump 合成的、已集成当月累积更新的版本，重装完基本不用再排队等补丁；而“重置此电脑”的云下载会重新走一遍在线更新。选哪条路，取决于你更在意“彻底”还是“装完即用”。
-
-也可以在管理员终端里直接唤起重置向导，少点几层菜单：
-
-```cmd
-systemreset -cleanpc
-```
-
-
-我的 G15 5511（11800H）、ENVY X360（1230U）和 ROG 幻（AMD 6800）都有这个现象，应该不是个例。重装后的系统与预装版本完全一致，可以放心操作。
-
-## 4. 升级到企业版
-
-重装完成后，把家庭中文版升级为企业版（商业版），更新节奏会更稳定。
-
-打开 设置 → 系统 → 系统信息 → 相关内容 → 产品密钥和激活，用密钥升级；也可以使用版本转换工具直接更改。
-
-
-从发布顺序看，家庭版通常先收到更新，企业版稍后推送，个人感觉相当于家庭版用户先替企业版试错。
-
-> 更新（截至 2026 年 10 月）：原文写作时“企业版 23H2 尚未正式推送”，现在 Windows 11 已推进到 **26H2 / 26H1**。家庭版先收到更新、商业版稍后推送的节奏仍然存在，但具体间隔随版本波动，**需在 26H2 实机核实**，不建议再按“家庭版先替企业版试错”的旧结论硬套。
->
-> 另一个变化：如果你本来就打算用企业版，可以按第 0 节直接从 UUP Dump 合成企业版镜像，省掉“装家庭版再升级”这一步。设置页面的密钥升级与 `changepk.exe` 仍然可用，跨版本升级后建议用 `slmgr.vbs /dlv` 复查一次激活状态。
-
-不想点设置页面的话，在管理员终端里用 `changepk.exe` 走同样的流程，密钥自己填：
-
-```cmd
-changepk.exe /productkey XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-```
-
-升级完成后用 `slmgr.vbs` 确认版本与激活状态：
-
-```cmd
-slmgr.vbs /dlv
-```
-
 
 ## 5. 断网，卸载迈克菲和多余应用
 
@@ -151,46 +66,46 @@ slmgr.vbs /dlv
 - 卸载主程序时若提示重新启动，先不要重启，让 Geek Uninstaller 清理残留文件。
 - 其余可卸载的多为微软自带的 UWP 应用，例如地图、家庭、提示、录音机和小组件。小组件是否保留看需求：它对我只是广告推送页，但有人用它显示手机链接和远程遥控。
 
-
-预装的 UWP 应用可以在管理员 PowerShell 里批量清掉。先看一眼都有哪些：
-
-```powershell
-Get-AppxPackage -AllUsers |
-  Select-Object Name, PackageFullName |
-  Sort-Object Name | Format-Table -AutoSize
-```
-
-再按需删除（`$names` 换成你要清的应用）：
+预装的 UWP 应用可以在管理员 PowerShell 里按序号挑着卸：先列出当前机器上的全部应用，再输入要卸载的序号（支持 `1,3,5` 这样多选），直接回车退出。
 
 ```powershell
-$names = 'BingMaps','BingWeather','ZuneMusic','ZuneVideo','Clipchamp','MicrosoftTeams',
-         'WindowsFeedbackHub','MicrosoftSolitaireCollection','Microsoft.People',
-         'Microsoft.MixedReality.Portal'
-Get-AppxPackage -AllUsers | Where-Object Name -in $names | Remove-AppxPackage -AllUsers
+$list = @(Get-AppxPackage -AllUsers | Sort-Object Name | ForEach-Object -Begin { $i = 0 } -Process {
+    [pscustomobject]@{ No = ++$i; Name = $_.Name; Full = $_.PackageFullName }
+})
+$list | Select-Object No, Name | Format-Table -AutoSize
 
-# 同时移除预置包，避免新建用户后又被装回来
-Get-AppxProvisionedPackage -Online |
-  Where-Object DisplayName -match 'Bing|Zune|Clipchamp|Teams|Feedback|Solitaire|People|MixedReality' |
-  Remove-AppxProvisionedPackage -Online
+$pick = Read-Host '输入要卸载的序号（逗号分隔，回车退出）'
+if (-not $pick) { return }
+
+foreach ($k in ($pick -split ',')) {
+    $idx = [int]$k.Trim() - 1
+    if ($idx -lt 0 -or $idx -ge $list.Count) {
+        Write-Host "跳过 $k" -ForegroundColor DarkYellow
+        continue
+    }
+    $name = $list[$idx].Name
+    Write-Host "卸载 $name ..." -ForegroundColor Yellow
+    Get-AppxPackage -AllUsers -Name $name | Remove-AppxPackage -AllUsers
+    Get-AppxProvisionedPackage -Online |
+        Where-Object DisplayName -eq $name |
+        Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
+}
+Write-Host '完成。误删的话可以在 Microsoft Store 里重新装回来。' -ForegroundColor Green
 ```
 
-迈克菲这类传统程序仍建议用 Geek Uninstaller（能连服务、计划任务和注册表一起清）。想用命令行的话，先列出来再卸载：
-
-```powershell
-winget list --name McAfee
-winget uninstall --name "McAfee"
-```
+> 存成 `.ps1` 再运行的话，请用 **UTF-8 with BOM** 保存（VS Code 右下角切编码，或直接在 PowerShell ISE 里粘贴运行）。Windows PowerShell 5.1 默认按 ANSI 读脚本，中文提示会乱码甚至报语法错。
+迈克菲这类传统程序仍建议用 Geek Uninstaller（能连服务、计划任务和注册表一起清）。
 
 ### 工具现状（截至 2026 年 10 月）
 
 | 工具 | 状态 | 用途与说明 |
 | --- | --- | --- |
-| Geek Uninstaller | 仍在更新，最新约 1.5.5.185（2026-09，待核实） | 卸载传统程序并清理残留，依然是首选 |
-| Win11Debloat | Release 2026.08.24（已核对） | 脚本化批量卸载 90+ 预装应用、关闭遥测与推荐内容，提供图形界面与中文；适合装完系统一次性铺底 |
-| Winhance | v26.06.12（已核对） | 同类批量配置工具，界面已升级到 WinUI 3；适合想要图形界面而不是脚本参数的人 |
+| Geek Uninstaller | 仍在更新，最新 1.6.0 | 卸载传统程序并清理残留，依然是首选 |
+| Win11Debloat | Release 2026.08.24 | 脚本化批量卸载 90+ 预装应用、关闭遥测与推荐内容，提供图形界面与中文；适合装完系统一次性铺底 |
+| Winhance | v26.06.12 | 同类批量配置工具，界面已升级到 WinUI 3；适合想要图形界面而不是脚本参数的人 |
 | ZyperWin++ | 待核实 | 卸载/精简类工具，版本与维护状态以项目页为准 |
 | Sparkle | 待核实 | 集成清理、DNS、SFC/DISM 等维护项的一站式工具 |
-| Dism++ | 最后版本 v10.1.1002.2（2023-03-26，已核对） | **历史工具，仅作了解**。自 2023 年起实质停更，对新版本 Windows 的组件与清理规则支持有限，不宜再当主力优化工具 |
+| Dism++ | 最后版本 v10.1.1002.2 | **历史工具，仅作了解**。自 2023 年起实质停更，对新版本 Windows 的组件与清理规则支持有限，不宜再当主力优化工具 |
 
 需要提醒：这类批量工具默认会关掉一部分系统功能（搜索、遥测、Copilot 类组件等），跑完务必按第 8 节逐条复查，别把你实际要用的功能顺手关掉。
 
@@ -198,33 +113,40 @@ winget uninstall --name "McAfee"
 
 关闭实时防护能减少扫描开销，但电脑会处于无防护状态。不清楚用途就不要修改，或先创建还原点（见第 14 节）。
 
-- 应用和浏览器控制 → 智能应用控制设置：“评估”改为“关闭”。智能应用控制会扫描正在启动的应用，拖慢启动速度。官方说明称只有重装才能重新打开，实际可以通过修改注册表强行启用。
+- 应用和浏览器控制 → 智能应用控制设置：“评估”改为“关闭”。智能应用控制会扫描正在启动的应用，拖慢启动速度。
 - 病毒和威胁防护 → 病毒和威胁防护设置：暂时关闭实时保护、云提供的保护、自动提交样本和篡改防护。
-- 病毒和威胁防护 → 添加或删除排除项：把硬盘分区（C、D、E、F）按需加入排除项。
+- 病毒和威胁防护 → 添加或删除排除项 → 添加文件夹 → 直接选每个盘的根目录
 - 防火墙和网络保护：关闭 Windows 防火墙，否则打开游戏时会弹窗。
 - 按 Win+R 输入 `gpedit.msc` 打开本地组策略编辑器，找到 计算机配置 → 管理模板 → Windows 组件 → Windows 安全中心 → 通知 → 隐藏所有通知，把“未配置”改为“已启用”。这样安全中心不再弹出通知。
 
 
-上面几项的等价命令（管理员终端；篡改防护开着时 `Set-MpPreference` 会失败，先在界面里关掉）：
+上面几项的等价脚本（管理员 PowerShell；篡改防护开着时实时保护关不掉，先在界面里手动关一遍）：
 
 ```powershell
-# 关闭实时保护、云提供的保护、自动提交样本
-Set-MpPreference -DisableRealtimeMonitoring $true
-Set-MpPreference -MAPSReporting Disabled -SubmitSamplesConsent NeverSend
+$menu = [ordered]@{
+    '1' = '关闭实时保护'
+    '2' = '关闭云提供的保护与自动提交样本'
+    '3' = '把 C/D/E/F 盘加入排除项'
+    '4' = '关闭 Windows 防火墙（域/专用/公用）'
+    '5' = '隐藏安全中心通知'
+    '6' = '智能应用控制改为关闭'
+}
+$menu.GetEnumerator() | ForEach-Object { '{0}. {1}' -f $_.Key, $_.Value }
 
-# 按分区添加排除项
-Add-MpPreference -ExclusionPath 'C:\', 'D:\', 'E:\'
+$pick = Read-Host '输入序号（逗号分隔，回车退出）'
+if (-not $pick) { return }
 
-# 关闭三个方向的 Windows 防火墙
-Set-NetFirewallProfile -Profile Domain, Private, Public -Enabled False
-```
-
-```cmd
-:: 安全中心 → 通知：隐藏所有通知（等价于组策略里的“已启用”）
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications" /v DisableNotifications /t REG_DWORD /d 1 /f
-
-:: 智能应用控制：0 = 关闭，1 = 评估，2 = 开启
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\CI\Policy" /v VerifiedAndReputablePolicyState /t REG_DWORD /d 0 /f
+foreach ($k in ($pick -split ',')) {
+    switch ($k.Trim()) {
+        '1' { Set-MpPreference -DisableRealtimeMonitoring $true }
+        '2' { Set-MpPreference -MAPSReporting Disabled -SubmitSamplesConsent NeverSend }
+        '3' { Add-MpPreference -ExclusionPath 'C:\', 'D:\', 'E:\', 'F:\' }
+        '4' { Set-NetFirewallProfile -Profile Domain, Private, Public -Enabled False }
+        '5' { reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications" /v DisableNotifications /t REG_DWORD /d 1 /f | Out-Null }
+        '6' { reg add "HKLM\SYSTEM\CurrentControlSet\Control\CI\Policy" /v VerifiedAndReputablePolicyState /t REG_DWORD /d 0 /f | Out-Null }
+        default { Write-Host "跳过 $k" -ForegroundColor DarkYellow }
+    }
+}
 ```
 
 按以上设置，电脑基本处于无防护状态。请根据需要恢复安全中心的防护，或改用第三方杀毒软件。
@@ -233,11 +155,7 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\CI\Policy" /v VerifiedAndReputabl
 
 ## 7. 修复 DirectX 组件
 
-部分应用依赖 DirectX 组件，即使不通过游戏平台启动也可能报错。用 DirectX Repair 工具修复一次即可，下载与常用运行库清单我整理在 [Windows 常用软件](/posts/cyrjtj/1/) 里。
-
-> 更新（截至 2026 年 10 月）：DirectX Repair 已迭代到 v4.4 系列，新增 C++ 扩展包与显卡驱动异常检测（版本号待核实，以项目页为准）。更“集成化”的思路是先用系统自带命令修映像，再用 winget 补齐运行时——两者配合，不装第三方修复工具也能覆盖大部分缺 DLL 的场景。
-
-不想装第三方工具的话，系统自带的组件修复命令能解决大部分“缺少组件/DLL”的报错，先修映像再修系统文件，完成后重启：
+部分应用依赖 DirectX 组件，即使不通过游戏平台启动也可能报错。而系统自带的组件修复命令能解决大部分“缺少组件/DLL”的报错，先修映像再修系统文件，完成后重启：
 
 ```cmd
 DISM /Online /Cleanup-Image /RestoreHealth
@@ -250,12 +168,11 @@ sfc /scannow
 winget install --id Microsoft.VCRedist.2015+.x64
 winget install --id Microsoft.DotNet.DesktopRuntime.8
 ```
+还是报错? 用 DirectX Repair 工具修复一次即可，下载与常用运行库清单我整理在 [Windows 常用软件](/posts/cyrjtj/1/) 里。
 
 ## 8. 系统设置逐项检查
 
 以下各项按“设置路径：操作”的形式排列，按需调整。
-
-这一节的价值在于**理解每一项设置到底在做什么**。当前网上的主流做法是脚本化一次铺完——Rufus 的静默安装选项、`autounattend.xml` 应答文件、Win11Debloat 或 Winhance 的一键配置（工具见第 5 节）。两者不冲突：先用脚本或工具铺一遍，再照本节逐条确认结果。工具默认值不一定等于你想要的，隐私、更新、资源管理器这几组尤其需要复查。
 
 - 系统 → 屏幕 → 显示卡 → 默认图形设置：打开三个选项。集显性能较弱时效果有限。
 - 系统 → 通知：按需设置。我的做法是打开请勿打扰，时间段设为 0:00 到 23:59。
@@ -277,58 +194,93 @@ winget install --id Microsoft.DotNet.DesktopRuntime.8
 - Windows 更新 → 高级选项：关闭所有选项；在“其他选项”的传递优化中关闭“允许从其他电脑下载”。
 - 文件资源管理器（按 Win+E 打开）→ 查看：勾选“项目复选框”“文件扩展名”“隐藏的项目”。
 
+上面绝大部分开关都能用命令一次设完，省得一层层点。下面这段是选项式脚本：列出可批量的设置项，输入序号（逗号分隔）或 `a` 全选，回车退出，改完注销或重启生效。
 
-上面绝大部分开关都能用命令一次设完，省得一层层点（管理员终端，改完注销或重启生效）：
+```powershell
+function Set-Reg($Path, $Name, $Value, $Type = 'DWord') {
+    if (-not (Test-Path $Path)) { New-Item -Path $Path -Force | Out-Null }
+    New-ItemProperty -Path $Path -Name $Name -Value $Value -PropertyType $Type -Force | Out-Null
+}
 
-```cmd
-:: 隐私和安全性 → 常规：关闭广告 ID、应用启动跟踪、建议内容、静默安装应用
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v Enabled /t REG_DWORD /d 0 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_TrackProgs /t REG_DWORD /d 0 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338389Enabled /t REG_DWORD /d 0 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 0 /f
+$cu = 'HKCU:\Software\Microsoft\Windows\CurrentVersion'
+$ops = @(
+    @{ Label = '隐私-常规：关闭广告 ID 与启动跟踪'; Do = {
+            Set-Reg "$cu\AdvertisingInfo" 'Enabled' 0
+            Set-Reg "$cu\Explorer\Advanced" 'Start_TrackProgs' 0
+        }
+    }
+    @{ Label = '隐私-常规：关闭建议内容与静默安装应用'; Do = {
+            Set-Reg "$cu\ContentDeliveryManager" 'SubscribedContent-338389Enabled' 0
+            Set-Reg "$cu\ContentDeliveryManager" 'SilentInstalledAppsEnabled' 0
+        }
+    }
+    @{ Label = '系统：关闭就近共享'; Do = {
+            Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System' 'EnableMmx' 0
+        }
+    }
+    @{ Label = '系统：关闭远程桌面'; Do = {
+            Set-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server' 'fDenyTSConnections' 1
+        }
+    }
+    @{ Label = '个性化：关闭任务栏“聊天”'; Do = {
+            Set-Reg "$cu\Explorer\Advanced" 'TaskbarMn' 0
+        }
+    }
+    @{ Label = '个性化：关闭锁屏花絮、提示、技巧'; Do = {
+            Set-Reg "$cu\ContentDeliveryManager" 'RotatingLockScreenOverlayEnabled' 0
+            Set-Reg "$cu\ContentDeliveryManager" 'SubscribedContent-338387Enabled' 0
+        }
+    }
+    @{ Label = '诊断和反馈：反馈频率设为“从不”'; Do = {
+            Set-Reg 'HKCU:\Software\Microsoft\Siuf\Rules' 'NumberOfSIUFInPeriod' 0
+        }
+    }
+    @{ Label = '活动历史记录：不存储、不上传'; Do = {
+            Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System' 'EnableActivityFeed' 0
+            Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System' 'PublishUserActivities' 0
+            Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System' 'UploadUserActivities' 0
+        }
+    }
+    @{ Label = '传递优化：不从其他电脑下载'; Do = {
+            Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization' 'DODownloadMode' 0
+        }
+    }
+    @{ Label = '粘滞键：关闭快捷方式'; Do = {
+            Set-Reg 'HKCU:\Control Panel\Accessibility\StickyKeys' 'Flags' '506' 'String'
+        }
+    }
+    @{ Label = '资源管理器：复选框、扩展名、隐藏项、打开“此电脑”'; Do = {
+            Set-Reg "$cu\Explorer\Advanced" 'AutoCheckSelect' 1
+            Set-Reg "$cu\Explorer\Advanced" 'HideFileExt' 0
+            Set-Reg "$cu\Explorer\Advanced" 'Hidden' 1
+            Set-Reg "$cu\Explorer\Advanced" 'LaunchTo' 1
+        }
+    }
+)
 
-:: 系统 → 就近共享：关闭
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v EnableMmx /t REG_DWORD /d 0 /f
+for ($i = 0; $i -lt $ops.Count; $i++) { '{0,2}. {1}' -f ($i + 1), $ops[$i].Label }
 
-:: 系统 → 远程桌面：关闭
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 1 /f
+$pick = Read-Host '输入序号（逗号分隔、a=全部，回车退出）'
+if (-not $pick) { return }
 
-:: 个性化 → 任务栏：关闭“聊天”
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarMn /t REG_DWORD /d 0 /f
+if ($pick.Trim() -eq 'a') {
+    $ops | ForEach-Object { & $_.Do }
+    Write-Host '已应用全部设置，注销或重启后生效。' -ForegroundColor Green
+    return
+}
 
-:: 个性化 → 锁屏界面：关闭花絮、提示、技巧
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v RotatingLockScreenOverlayEnabled /t REG_DWORD /d 0 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338387Enabled /t REG_DWORD /d 0 /f
-
-:: 隐私和安全性 → 诊断和反馈：反馈频率设为“从不”
-reg add "HKCU\Software\Microsoft\Siuf\Rules" /v NumberOfSIUFInPeriod /t REG_DWORD /d 0 /f
-
-:: 隐私和安全性 → 活动历史记录：不存储、不上传
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v EnableActivityFeed /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v PublishUserActivities /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v UploadUserActivities /t REG_DWORD /d 0 /f
-
-:: Windows 更新 → 传递优化：不从其它电脑下载（0 = 只走 HTTP）
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" /v DODownloadMode /t REG_DWORD /d 0 /f
-
-:: 辅助功能 → 粘滞键：关闭全部快捷方式（506 = 全关）
-reg add "HKCU\Control Panel\Accessibility\StickyKeys" /v Flags /t REG_SZ /d 506 /f
-
-:: 文件资源管理器：项目复选框、文件扩展名、隐藏的项目、打开“此电脑”
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v AutoCheckSelect /t REG_DWORD /d 1 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Hidden /t REG_DWORD /d 1 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 1 /f
+foreach ($k in ($pick -split ',')) {
+    $idx = [int]$k.Trim() - 1
+    if ($idx -ge 0 -and $idx -lt $ops.Count) {
+        & $ops[$idx].Do
+        Write-Host "已应用：$($ops[$idx].Label)" -ForegroundColor Green
+    }
+    else {
+        Write-Host "跳过 $k" -ForegroundColor DarkYellow
+    }
+}
+Write-Host '注销或重启后生效。' -ForegroundColor Yellow
 ```
-
-### 轻量替代：Microsoft PC Manager
-
-不想上第三方优化工具的话，可以只用微软官方免费的 **PC Manager**（中文名“电脑管家”）：存储感知清理、启动项管理、弹窗拦截、PC Boost 都在里面，正好覆盖本节里“存储感知、启动项、弹窗”这几块高频需求。它的清理力度比脚本温和，副作用小，适合当日常维护工具，不适合一次性极限精简。
-
-> 功能入口与可用区域以微软官网为准（待核实）。
-
-文件资源管理器还有两处设置：点右侧“…”→ 选项，把“打开文件资源管理器时打开”设为“此电脑”；下方“隐私”中的三个选项（显示最近使用的文件、显示常用文件夹、显示来自 Office.com 的文件）按需勾选，然后保存。
-
 
 ## 9. 精简显卡右键菜单，恢复 Windows 10 样式
 
@@ -353,19 +305,18 @@ Get-ChildItem 'HKLM:\SOFTWARE\Classes\PackagedCom\Package' |
     }
   }
 ```
+第二步，把 Windows 11 的右键菜单换回 Windows 10 样式。下面是一键脚本：建键并清空该 CLSID 的默认值，然后重启资源管理器。不想立刻重启的话，注释掉最后两行，重启电脑同样生效。
 
-第二步，把 Windows 11 的右键菜单换回 Windows 10 样式。打开 CMD 或终端，执行下面的命令：
+```powershell
+$key = 'HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32'
 
-```cmd
-reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve
-```
+# 建键并清空默认值，系统就会回退到 Windows 10 的右键菜单
+New-Item -Path $key -Force | Out-Null
+Set-Item -Path $key -Value ''
 
-命令的作用是清除该 CLSID 的默认值，让系统使用旧版右键菜单。执行后重启资源管理器或重启电脑即可生效。
-
-不想重启电脑的话，重启一次资源管理器就够了：
-
-```cmd
-taskkill /f /im explorer.exe & start explorer
+# 重启资源管理器生效；不想重启就注释掉下面两行
+Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+Start-Process explorer
 ```
 
 ## 10. 停用休眠文件，关闭快速启动
@@ -406,19 +357,6 @@ shutdown /s /f /t 0
 ## 11. 关闭不需要的设备服务
 
 使用“Windows 11 轻松使用”工具可以关闭不需要的设备服务。关闭系统服务前，建议先按第 14 节创建还原点，以便出现问题时回退。
-
-
-手工翻服务列表容易误伤，先用命令看清哪些在跑，再逐个处理：
-
-```powershell
-# 列出正在运行的服务（服务名比显示名可靠）
-Get-Service | Where-Object Status -eq 'Running' |
-  Sort-Object DisplayName | Format-Table -AutoSize Name, DisplayName
-
-# 例：停用诊断跟踪服务，并设为手动启动以便随时恢复
-Stop-Service -Name 'DiagTrack' -Force
-Set-Service  -Name 'DiagTrack' -StartupType Manual
-```
 
 ## 12. Edge 浏览器设置
 
@@ -502,49 +440,65 @@ Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemResto
 
 - AMD 平台可以尝试在设备管理器 → 系统设备中停用“高精度时间计时器”。据称能提升游戏帧数，实测差距约 1–2 帧。
 
-也可以直接用 PowerShell 找出来停用，省得在设备管理器里一层层翻：
+这一节里能用命令完成的几项，做成一个可选脚本（管理员 PowerShell；回车退出）：
 
 ```powershell
-Get-PnpDevice -Class System |
-  Where-Object FriendlyName -match '高精度|High Precision' |
-  Disable-PnpDevice -Confirm:$false
+function Set-Reg($Path, $Name, $Value, $Type = 'DWord') {
+    if (-not (Test-Path $Path)) { New-Item -Path $Path -Force | Out-Null }
+    New-ItemProperty -Path $Path -Name $Name -Value $Value -PropertyType $Type -Force | Out-Null
+}
+
+$ops = @(
+    @{ Label = '停用“高精度时间计时器”（AMD 平台，约 1-2 帧）'; Do = {
+            Get-PnpDevice -Class System |
+                Where-Object FriendlyName -match '高精度|High Precision' |
+                Disable-PnpDevice -Confirm:$false
+        }
+    }
+    @{ Label = '关闭内存完整性（HVCI），重启后生效'; Do = {
+            Set-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Enabled' 0
+        }
+    }
+    @{ Label = '关闭 Hyper-V 启动层（VBS）：模拟器/虚拟机/WSA 用户不要选'; Do = {
+            bcdedit /set hypervisorlaunchtype off | Out-Null
+            bcdedit /enum '{current}'
+        }
+    }
+    @{ Label = '电源计划切回平衡'; Do = {
+            powercfg /setactive SCHEME_BALANCED
+        }
+    }
+    @{ Label = '关闭“提高鼠标精准度”'; Do = {
+            Set-Reg 'HKCU:\Control Panel\Mouse' 'MouseSpeed' '0' 'String'
+            Set-Reg 'HKCU:\Control Panel\Mouse' 'MouseThreshold1' '0' 'String'
+            Set-Reg 'HKCU:\Control Panel\Mouse' 'MouseThreshold2' '0' 'String'
+        }
+    }
+)
+
+for ($i = 0; $i -lt $ops.Count; $i++) { '{0}. {1}' -f ($i + 1), $ops[$i].Label }
+
+$pick = Read-Host '输入序号（逗号分隔、a=全部，回车退出）'
+if (-not $pick) { return }
+
+if ($pick.Trim() -eq 'a') {
+    $ops | ForEach-Object { & $_.Do }
+    Write-Host '已执行全部操作。' -ForegroundColor Green
+    return
+}
+
+foreach ($k in ($pick -split ',')) {
+    $idx = [int]$k.Trim() - 1
+    if ($idx -ge 0 -and $idx -lt $ops.Count) {
+        & $ops[$idx].Do
+        Write-Host "已执行：$($ops[$idx].Label)" -ForegroundColor Green
+    }
+    else {
+        Write-Host "跳过 $k" -ForegroundColor DarkYellow
+    }
+}
 ```
-
-这一节里能用命令完成的几项，一并放在这里（均在管理员终端执行）：
-
-```cmd
-:: 关闭内存完整性（HVCI）
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v Enabled /t REG_DWORD /d 0 /f
-
-:: 关闭 Hyper-V 启动层（VBS 依赖它），用模拟器/虚拟机的人别执行
-bcdedit /set hypervisorlaunchtype off
-
-:: 确认启动配置已写入
-bcdedit /enum {current}
-```
-
-```cmd
-:: 查看本机全部电源计划与 GUID
-powercfg /list
-
-:: 切回平衡模式
-powercfg /setactive SCHEME_BALANCED
-```
-
-```cmd
-:: 关闭“提高鼠标精准度”，等价于把鼠标曲线三个值清零
-reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d 0 /f
-reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d 0 /f
-reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d 0 /f
-```
-
-> 版本提示（截至 2026 年 10 月）：VBS / HVCI 的默认启用状态，以及它对虚拟化相关功能（WSA、模拟器、虚拟机、沙盒）的限制是否在 26H2 上有变化，**需在 26H2 实机核实**；下面的命令本身多年未变，执行前仍建议先按第 14 节建一个还原点。
 
 ## 17. 选 Windows 10 还是 Windows 11
 
-目前手边有 4 台设备，3 台笔记本、1 台台式机，Windows 10 和 Windows 11 都在使用。
-
 如果你喜欢 Windows 11 的界面，又希望保留 Windows 10 的操作逻辑，可以靠美化包和第三方工具实现。Windows 10 现已支持大小核调度，兼容性没有问题，实在不行还有补丁可选。AMD 平台出厂预装 Windows 11 的设备，没必要大费周章回退 Windows 10。
-
-
-以上均为个人使用经验，仅供参考。
