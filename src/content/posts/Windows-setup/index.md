@@ -13,6 +13,10 @@ draft: false
 alias: "windows-setup"
 ---
 
+::: warning 本文由 DeepSeek v4.1 Falsh 润色制作
+正文与各节命令经 AI 润色整理；涉及注册表、防火墙与系统服务的操作，请先按第 14 节创建还原点再动手。
+:::
+
 网上少见 Windows 11 的系统设置教程，这里结合自己的使用体验整理一份清单，按从装机到日常使用的顺序排列。
 
 先说两点：
@@ -179,7 +183,7 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\CI\Policy" /v VerifiedAndReputabl
 
 ## 7. 修复 DirectX 组件
 
-部分应用依赖 DirectX 组件，即使不通过游戏平台启动也可能报错。用 DirectX Repair 工具修复一次即可。
+部分应用依赖 DirectX 组件，即使不通过游戏平台启动也可能报错。用 DirectX Repair 工具修复一次即可，工具下载与常用运行库清单我整理在 [Windows 常用软件](/posts/cyrjtj/1/) 里。
 
 ![DirectX Repair 工具](https://image.coolapk.com/feed/2024/0306/02/13728628_3cec3a9f_4000_9017_367@756x726.png.m.jpg)
 
@@ -212,7 +216,7 @@ winget install --id Microsoft.DotNet.DesktopRuntime.8
 - 个性化 → 锁屏界面：关闭“在锁屏界面上获取花絮、提示、技巧等”。
 - 个性化 → 开始：按需设置。
 - 个性化 → 任务栏：关闭任务栏项里的“聊天”。搜索项不必处理，按 Win 键唤出开始菜单后直接输入即可调用搜索。
-- 个性化 → 主题 → 相关设置 → 桌面图标设置：按需设置。
+- 个性化 → 主题 → 相关设置 → 桌面图标设置：按需设置；想换成 macOS 风格图标可以照 [让 Windows 用上 mac OS 26 同款图标](/posts/win-icon/让-windows-用上-mac-os-26-同款图标/) 来做。
 - 应用 → 启动：关闭不需要的启动项。
 - 辅助功能 → 键盘 → 粘滞键：关闭所有选项。
 - 隐私和安全性 → 常规：关闭所有选项。
@@ -287,7 +291,7 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v La
 
 ## 9. 精简显卡右键菜单，恢复 Windows 10 样式
 
-第一步，按显卡品牌去掉右键菜单里的多余项。
+第一步，按显卡品牌去掉右键菜单里的多余项（NVIDIA app 与驱动的下载链接见 [Windows 常用软件](/posts/cyrjtj/1/)）。
 
 | 显卡 | 操作 |
 | --- | --- |
@@ -412,7 +416,7 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v BackgroundModeEnabled /t REG_
 
 ## 13. 检查第三方软件设置
 
-逐个检查已安装的第三方软件，关闭不需要的功能、弹窗和广告。
+逐个检查已安装的第三方软件，关闭不需要的功能、弹窗和广告。两篇现成的例子：[给 Steam 加点得劲魔法❤️ — Steam 优化小技巧](/posts/steam-extension/steam-extension/) 是改软件本身的设置，[去除 获取打开此'ms-gamebar'链接的应用 的弹窗](/posts/tanchaung/no/) 是清系统层面的骚扰弹窗。
 
 ## 14. 设置系统还原
 
