@@ -263,14 +263,14 @@ const article: DeepPartial<ArticleConfig> = {
 
 // config/comment.yaml
 const comment: DeepPartial<CommentConfig> = {
-	enable: false,
-	provider: "none",
+	enable: true,
+	provider: "twikoo",
 	lazy: true,
 	twikoo: {
-		envId: "",
+		envId: "https://liuyi-comments.netlify.app",
 		scriptUrl: "https://cdn.jsdelivr.net/npm/twikoo@1.7.20/dist/twikoo.min.js",
 		lang: "auto",
-		placeholder: "Share your thoughts...",
+		placeholder: "善语结善缘，恶语伤人心...",
 	},
 	giscus: {
 		repo: "",
