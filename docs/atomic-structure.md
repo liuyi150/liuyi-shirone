@@ -60,7 +60,8 @@
 
 ### 4.1 技术栈混用与水合
 
-1. **禁止在纯 SSR 页面引入 `@iconify/svelte` 图标**——没有 hydration 岛的页面上 Svelte 图标不会渲染。纯 SSR 页面（如全静态文章页、分类列表）统一用 `astro-icon`。
+1. **图标统一走 `atoms/display/Icon.svelte`**——它在构建期内联服务端 SVG，纯 SSR 页面（如全静态文章页、分类列表）与有水合岛的页面行为一致，不存在「SSR 路径要用另一套图标实现」的分叉。禁止绕过它直接导入在线 Iconify 组件。
+   - API 迁移：新代码使用 `icon`；`name` 仅为旧 `astro-icon` override 保留兼容，并在开发时警告。`size` 不会被离线渲染器消费，正方图标请改用 `width` 与 `height`（例如二者都设为 `24`）；`rotate` 使用数字角度（如 `rotate={90}`），不要传字符串。
 2. **禁止在 `.svelte` 中混用 runes 与旧响应式语法**——全文件保持一致（`<script lang="ts">` 中用 `$props()`、`$state()` 时全用 runes；旧语法全用 `export let`、`let`、`$:`）。
 3. **禁止给静态展示组件无端添加 `client:load`**——只有带用户交互（搜索、切换、轮播、抽屉、点赞等）的组件才加 client 指令。首选 `client:visible` 惰性水合。
 4. **禁止破坏 Stylus 选择器连接**——如 `.btn { &.active { ... } }` 输出 `.btn.active`（正确）；若写成 `& .active` 则变成后代选择器（可能非预期）。避免 `&` 与父级类名拼接出错误命名的 CSS 类。
@@ -112,11 +113,14 @@
 
 ## 6. 当前分层清单（2026-08）
 
+`Pagination.astro` 静态链接版与 `ListPagination.svelte` 交互列表版共享样式和页码窗口；
+`createListHistory` 是有机体使用的路由工具，分子只通过回调通知页码变更。
+
 | 层 | 组件 |
 |---|---|
 | atoms/ | 63 个原子组件（Button、Chip、IconButton、FAB、FABMenu、Slider、SegmentedButton、TextField、Switch、Checkbox、RadioButton、Dialog、Menu、Badge、Divider、Snackbar、Tabs、Select、DataTable、SearchView、Autocomplete、SheetSide、Carousel、PullToRefresh、DatePicker、TimePicker、Chips、Banner、Tooltip、Card、AppBar、NavigationBar/Rail/Drawer、ExposedDropdownMenu、ListItem、LoadingIndicator、ProgressIndicator、AlertDialog、BadgedBox、SplitButton、ToggleButton、ButtonGroup、SearchBar、DateInput、FloatingToolbar、BottomSheet 等；完整清单与 tier 见 `atoms/manifest.json`） |
 | molecules/ | PageHeader、SectionTitle、ButtonLink、ButtonTag、Tags、Categories、Series、Announcement、SiteStats、Calendar、CalendarView、AnimeCard、CompassTile、PostMeta、SeriesCard、SearchBar、SidebarTOC、FloatingActionButton、FloatingTOCPanel、WidgetLayout、ImageWrapper、License、Pagination、FriendCard、MomentCard、MomentGallery、AlbumCard、LastUpdatedNotice、ArticleDiscoveryItem、SkillCard、ProjectCard、TimelineCard、GameCard、BannerWaves、MermaidDiagramViewer |
-| organisms/ | TopAppBar、SideBar、Footer、Search、PostCard、PostPage、FloatingControls、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop、BannerStage、FriendSection、MomentSection、AnimeSection、CompassSection、AlbumSection、AlbumGallery、PasswordGate、ProtectedAlbum、EncryptedContent、ProtectedPost、ArticleDiscovery、ArticleShare、SkillSection、ProjectSection、TimelineSection、GamesSection、MusicSidebar |
+| organisms/ | TopAppBar、SideBar、Footer、Search、PostCard、PostPage、FloatingControls、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop、BannerStage、FriendSection、MomentSection、ProtectedMoment、AnimeSection、CompassSection、AlbumSection、AlbumGallery、PasswordGate、ProtectedAlbum、EncryptedContent、ProtectedPost、ArticleDiscovery、ArticleShare、SkillSection、ProjectSection、TimelineSection、GamesSection、MusicSidebar |
 | system/ | ConfigCarrier、GlobalStyles |
 | content/ | Markdown |
 | layouts/ | Layout、MainGridLayout |

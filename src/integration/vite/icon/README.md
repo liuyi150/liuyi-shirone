@@ -1,6 +1,6 @@
 # `vite/icon/`
 
-`Icon.svelte` imports `@/generated/local-icon-collections`, a tree-shaken subset
+`Icon.svelte` imports `virtual:shirone-icons`, a tree-shaken subset
 of the installed `@iconify-json/*` sets. Tree-shaking is the reason this exists:
 
 | | icons | size |
@@ -15,75 +15,110 @@ and in one request.
 
 ## Files
 
-- `collections.ts` — scans the sources, resolves each referenced glyph through
-  its alias chain, writes the collection module.
-- `regeneration.ts` — the Vite plugin that keeps it current.
+- `collections.ts` scans the sources, resolves each referenced glyph through
+  its alias chain and returns the source of the module. It writes nothing.
+- `regeneration.ts` is the Vite plugin that serves that source as
+  `virtual:shirone-icons` and keeps it current.
+
+## One module, both modes
+
+The collection is a virtual module, generated in memory from the project it is
+running in. A source checkout and a project that installs the package go through
+the same code and get the same answer; there is no file on disk and no copy
+shipped in the package.
+
+It used to be a file, `src/generated/local-icon-collections.ts`, with a second
+copy built into the package and a `resolveId` redirect that picked the project's
+copy over the shipped one. In package mode the redirect lost to Vite's own
+resolver, which found the shipped copy first, so only the icons the theme itself
+uses were rendered. `tests/icon-regen-hot-update.test.mjs` asks a real Vite
+server and a real build for the module instead of calling `resolveId` by hand,
+because the hand-called version passed while that bug was live.
+
+### The legacy specifier
+
+Before this, `Icon.svelte` imported `@/generated/local-icon-collections`. A
+project that overrides `Icon.svelte` with a copy from that time still does, so
+the plugin answers that specifier with the virtual module too. Vite applies
+aliases before plugins, so what arrives is the rewritten absolute path; the
+plugin matches it by its tail, with either path separator. The plugin is
+`enforce: "pre"` so that it is asked before Vite's resolver finds a stale file
+left at that path.
 
 ## Where it runs
 
-`regeneration.ts` regenerates in two places:
+- `buildStart` generates the collection for `astro dev`, `astro build` and
+  `astro sync`.
+- In `astro dev` the plugin listens to the file watcher. Creating, changing or
+  deleting a scanned source or an SVG under `src/icons/` regenerates after a
+  150 ms debounce. If the result is the same as before, nothing else happens;
+  an ordinary save does not touch the icon module. If it differs, the module is
+  reloaded in every environment and the browser gets a full reload, because
+  server-rendered icons are plain HTML.
 
-- `buildStart` — the collection must exist before Vite resolves
-  `Icon.svelte`. This runs for `astro dev` and `astro build`. `astro sync`
-  does not fire it, so that command reads whatever the last dev or build
-  left behind; run `pnpm dev` once after adding an icon to a component.
-- `handleHotUpdate` — an icon added while the dev server is up regenerates
-  without a restart. This is the reason the plugin exists at all; generation used
-  to happen only in the script chain, which ran once before the server started.
-
-There is deliberately no CLI wrapper. An earlier version exposed
-`pnpm icons:generate`; with the hook in place it had no callers left except the
-`dev`/`build` chains it duplicated.
+There is deliberately no CLI wrapper and no step in the script chain.
 
 ## What gets scanned
 
-`packageSrc` (the theme's own components) and `contentDir` (a user's posts,
-absent in source mode). Together those cover both modes without a mode check:
-in source mode the theme *is* the project, so `packageSrc` already contains
-`src/content`.
+Every place an icon name can be written and end up rendered:
 
-`ICON_PREFIXES` in `collections.ts` is the allow-list of usable sets, and it
-duplicates `iconInclude` in `src/config/integrationsConfig.ts`. Both need a new
-set; keep them in step.
+| root | covers |
+|---|---|
+| `packageSrc` | the theme's own source |
+| `<project>/src` | component and layout overrides, the project's own pages |
+| `contentDir` | posts, moments, spec pages |
+| `configDir`, `dataDir` | TS config and data overrides, e.g. `profileConfig.ts` |
+| targets of `ShironesOptions.components` | explicit overrides, scanned as single files |
 
-## Gotcha: Vite resolves aliases before plugins
+The list has no mode check, so an icon that works in a source checkout also
+works in a project that installs the package. In source mode `<project>/src` is
+`packageSrc` and already contains the other three; in package mode they default
+to `shirones/`. `options.paths` can move any of them outside `src/`, which is
+why they are listed on their own. Roots overlap freely: each file is read once.
 
-`Icon.svelte` writes the specifier `@/generated/local-icon-collections`, but by
-the time a plugin's `resolveId` runs, Vite has already rewritten it — to
-`packageRoot/src/...` in source mode (via tsconfig paths) and to
-`<package>/src/...` in package mode. `enforce: "pre"` does not change this.
+A directory named `generated` is skipped: the collection used to be written to
+`src/generated/`, and a project may still have that file. A file elsewhere in
+the project (a `lib/` next to `src/`, say) is not scanned unless one of the
+roots above contains it.
 
-This is also why the collection is a real file rather than a virtual module.
-Serving it from `load()` needs the virtual id to parse as TypeScript (the
-generated source uses `as const`), and a generated module has to exist on disk
-for the packaging step's local-import check anyway.
+The scan is textual. It matches `prefix:name` for the allowed prefixes anywhere
+in a file, so a name in a comment or in a post that only talks about an icon is
+collected too. That costs a few bytes when the name exists and a warning when it
+does not (see [Errors](#errors)).
 
-`regeneration.ts` writes the file and adds a `resolveId` that points
-`Icon.svelte` at it, falling back to the copy shipped in the package. That
-fallback is what makes the two modes behave the same: in package mode the alias
-resolves into `node_modules`, where this plugin must not write, so without the
-redirect a user's own posts would never reach the collection.
+`ICON_PREFIXES` in `collections.ts` is the allow-list of usable sets. A new set
+needs adding there, and a `@iconify-json/<set>` entry in the theme's
+`dependencies` — that is the whole configuration. Nothing else needs editing:
+this module no longer shares the list with `astro-icon`, so there is no second
+copy to keep in step.
 
-### Verifying the redirect
+## The `local` collection
 
-Delete the packaged copy and build — if it still succeeds, the user's file is
-what got read:
+A project's own `src/icons/*.svg` is emitted under the `local` prefix, which is
+what replaced astro-icon's icon directory. It used to require four
+`@iconify-json/*` packages on every user's `package.json` because astro-icon
+located sets by reading that file; this module resolves them from inside the
+installed package instead, so those sets ship as the theme's dependencies and
+the user declares none of them.
 
-```
-mv node_modules/shirones/src/generated/local-icon-collections.ts{,.bak}
-pnpm build   # must succeed
-```
+`Icon.svelte` maps a bare `<icon>` (no `prefix:`) onto `local:`, which keeps
+astro-icon's call-site syntax working. Parsing is regex-based and lenient — a
+file with no `viewBox`/`width`/`height`, or an empty `<svg>`, is dropped rather
+than thrown on, matching what astro-icon did.
 
-Confirm the consumer actually has the change first. `pnpm build` in the
-packaging repo only rewrites `dist/`; a throwaway consumer keeps the tarball it
-installed until it re-installs. Testing against a stale install makes a working
-redirect look broken — and `Icon.svelte` shipping as source is easy to miss,
-because `find node_modules/shirones -name Icon.svelte` follows no symlink under
-pnpm's layout and reports nothing while the file is there.
+## Errors
 
-## Errors are swallowed on purpose
+- **Unknown icon name**: a warning naming the icon and a file that mentions it,
+  once per name; the icon is left out and renders as nothing. The build
+  continues, in `astro dev` and `astro build` alike. It is a warning because
+  the scan cannot tell a reference from a mention, and a sentence in a post
+  should not be able to fail a deploy.
+- **A missing icon set or a broken alias inside a set**: this is a broken
+  install and would blank every icon. `astro build` throws; `astro dev` warns
+  and keeps serving the previous collection.
 
-`regeneration.ts` catches failures. A typo in one post should cost one icon,
-not take the dev server down or fail a deploy. The CLI path is gone, so nothing
-reports the problem loudly — if an icon silently does not appear, check that the
-name exists in the installed set.
+The theme's own source is held to the stricter rule by
+`tests/local-icons.test.mjs`, which fails on any unknown name under `src/`.
+
+If an icon is blank, look for the warning first, then check that the file that
+uses it is under one of the scanned roots.

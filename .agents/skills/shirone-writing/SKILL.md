@@ -25,6 +25,14 @@ seriesOrder: 3          # 可选，系列内顺序；缺省按发布日期
 pinned: false           # 置顶
 draft: false            # 草稿(不发布)
 comment: true           # 文章级评论开关(默认 true,继承全局)
+license:                # 可选，覆写全站版权声明；省略字段回退全站；也可写 license: CC BY 4.0
+  enable: true
+  name: CC BY 4.0
+  url: https://creativecommons.org/licenses/by/4.0/
+  author:               # 作者：字符串或 { name, url }
+    name: 某某
+    url: https://example.com/author
+  source: https://original.example.com/post  # 转载原文链接；留空=原创
 lang: ""                # 覆盖站点默认语言的渲染语言
 # 加密文章
 encrypted: false
@@ -55,7 +63,7 @@ hideHomeContent: true   # 加密内容在首页隐藏(默认 true)
 
 ## 动态(moments)frontmatter
 
-`published`(必填)、`pinned`、`location`、`mood`(Iconify 图标名,如 `material-symbols:sentiment-excited-outline-rounded`)、`tags: []`、`images: [{src, alt}]`、`draft`。
+`published`(必填)、`pinned`、`location`、`mood`(Iconify 图标名,如 `material-symbols:sentiment-excited-outline-rounded`)、`tags: []`、`images: [{src, alt}]`、`draft`。动态也支持 `encrypted`、`password` 与 `passwordHint`:设置非空 `password` 即启用加密;显式写 `encrypted: true` 却没有有效密码会拒绝构建,避免正文意外明文发布。加密只覆盖正文、位置、心情与展示用标签:标签会以公开的 `filterTags` 参与筛选,图片文件本身仍是 `public/` 下的普通静态资源,敏感图片不要用加密动态承载。
 
 ## 工作流
 

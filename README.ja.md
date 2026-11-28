@@ -12,8 +12,8 @@
 
 [English](./README.md) · [简体中文](./README.zh-CN.md) · [繁體中文](./README.zh-TW.md) · [日本語](./README.ja.md)
 
-![Node.js >= 22.12](https://img.shields.io/badge/Node.js-%3E%3D22.12-5FA04E?logo=nodedotjs&logoColor=white)
-![pnpm 9](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white)
+![Node.js >= 26.13.0](https://img.shields.io/badge/Node.js-%3E%3D26.13.0-5FA04E?logo=nodedotjs&logoColor=white)
+![pnpm 11](https://img.shields.io/badge/pnpm-11-F69220?logo=pnpm&logoColor=white)
 ![Astro 7](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639.svg)](./LICENSE)
 
@@ -73,8 +73,8 @@ Shirone は Astro 7、Svelte 5、Tailwind CSS 4、Stylus で構築された静�
 
 ### 必要な環境
 
-- [Node.js](https://nodejs.org/) 22.12 以上
-- [pnpm](https://pnpm.io/) 9.x（リポジトリでは `pnpm@9.14.4` を固定）
+- [Node.js](https://nodejs.org/) 26.13.0 以上
+- [pnpm](https://pnpm.io/) 11.x（リポジトリでは `pnpm@11.28.2` を固定）
 
 ### ローカルで起動する
 
@@ -101,7 +101,7 @@ npx shirones init   # package.json を書き、astro・テーマ・peer 依存�
 pnpm dev
 ```
 
-`init` は `astro.config.mjs`、`shirones/` 配下の型付き設定、サンプルコンテンツと静的アセットを生成します。`src/components/` と `src/layouts/` でテーマのコンポーネントを上書きすることもできます。いつでも `npx shirones init` を再実行して差分を確認できます（報告のみで何も変更しません）。`npx shirones init --update` で不足ファイルを復元し、`--force` でテンプレートから再初期化します。詳しくは [shirones wiki](https://github.com/yCENzh/shirones/wiki)、[npm パッケージモード](./docs/npm-package-mode.md) と [shirones リポジトリ](https://github.com/yCENzh/shirones) を参照してください。
+`init` は `astro.config.mjs`、`shirones/` 配下の型付き設定、サンプルコンテンツと静的アセットを生成します。`src/components/` と `src/layouts/` でテーマのコンポーネントを上書きすることもできます。いつでも `npx shirones init` を再実行して差分を確認できます（報告のみで何も変更しません）。`npx shirones init --update` で不足ファイルを復元し、`--force` でテンプレートから再初期化します。`public/` の中身は自由に整理できます。削除したファイルは報告も復元もされません。テンプレートのアセットを戻したいときは `npx shirones init --public` を実行してください。詳しくは [shirones wiki](https://github.com/yCENzh/shirones/wiki)、[npm パッケージモード](./docs/npm-package-mode.md) と [shirones リポジトリ](https://github.com/yCENzh/shirones) を参照してください。
 
 ### サイトをカスタマイズする
 

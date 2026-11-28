@@ -23,6 +23,16 @@ export const th: Translation = {
 	[Key.momentsBanner]: "บันทึกสั้น ๆ — ชีวิต งาน และความสุขเล็ก ๆ",
 	[Key.momentsCount]: "ชิ้น",
 	[Key.momentsCounts]: "ชิ้น",
+	[Key.momentPasswordTitle]: "โมเมนต์ที่ได้รับการป้องกัน",
+	[Key.momentPasswordDescription]:
+		"โมเมนต์นี้ถูกเข้ารหัส โปรดป้อนรหัสผ่านเพื่อปลดล็อกเนื้อหา",
+	[Key.momentPasswordLabel]: "รหัสผ่าน",
+	[Key.momentPasswordShow]: "แสดงรหัสผ่าน",
+	[Key.momentPasswordHide]: "ซ่อนรหัสผ่าน",
+	[Key.momentPasswordRequired]: "กรุณาป้อนรหัสผ่าน",
+	[Key.momentPasswordInvalid]: "รหัสผ่านไม่ถูกต้อง",
+	[Key.momentPasswordUnlock]: "ปลดล็อกโมเมนต์",
+	[Key.momentPasswordUnlocking]: "กำลังถอดรหัส…",
 	[Key.pinned]: "ปักหมุด",
 	[Key.loadMore]: "โหลดเพิ่ม",
 
@@ -167,6 +177,7 @@ export const th: Translation = {
 	[Key.announcementClose]: "ปิดประกาศ",
 
 	[Key.comments]: "ความคิดเห็น",
+	[Key.commentsEditor]: "เนื้อหาความคิดเห็น",
 	[Key.commentsLoading]: "กำลังโหลดความคิดเห็น...",
 	[Key.commentsLoadFailed]: "โหลดความคิดเห็นไม่สำเร็จ",
 	[Key.commentsRequiresJavaScript]:
@@ -202,6 +213,8 @@ export const th: Translation = {
 	[Key.calendarPrevMonth]: "เดือนก่อน",
 	[Key.calendarNextMonth]: "เดือนถัดไป",
 
+	[Key.markdownTableExpand]: "ขยายตาราง",
+	[Key.markdownTablePreview]: "ตัวอย่างตาราง",
 	[Key.mermaidControls]: "ตัวควบคุมแผนภาพ",
 	[Key.mermaidZoomIn]: "ขยาย",
 	[Key.mermaidZoomOut]: "ย่อ",
@@ -236,7 +249,7 @@ export const th: Translation = {
 	[Key.musicErrorAutoplayBlocked]: "ระบบบล็อกการเล่นอัตโนมัติ กดปุ่มเล่นเพื่อเริ่ม",
 	[Key.musicErrorInvalidTrack]: "ข้อมูลเพลงนี้ไม่ถูกต้อง",
 
-	[Key.themeColor]: "Theme Color",
+	[Key.themeColor]: "สีธีม",
 	[Key.colorStyle]: "สไตล์สี",
 	[Key.colorSpec]: "สเปกสี",
 
@@ -263,6 +276,7 @@ export const th: Translation = {
 	[Key.paginationNext]: "หน้าถัดไป",
 	[Key.paginationPage]: "หน้า {page}",
 	[Key.paginationJump]: "ไปที่หน้า",
+	[Key.paginationLabel]: "การเปลี่ยนหน้า",
 	[Key.tagsViewAll]: "ดูแท็กทั้งหมด",
 
 	[Key.author]: "ผู้เขียน",
@@ -270,6 +284,7 @@ export const th: Translation = {
 	[Key.lastUpdatedNotice]: "อัปเดตล่าสุดเมื่อ {date} ผ่านมาแล้ว {days} วัน",
 	[Key.lastUpdatedWarning]: "เนื้อหาบางส่วนอาจล้าสมัย",
 	[Key.license]: "สัญญาอนุญาต",
+	[Key.reprintSource]: "ที่มาจาก",
 	[Key.continueReading]: "อ่านต่อ",
 	[Key.relatedReading]: "บทความที่เกี่ยวข้อง",
 	[Key.relatedReadingSubtitle]: "อิงจากแท็กและหมวดหมู่ร่วมกัน",
@@ -328,4 +343,13 @@ export const th: Translation = {
 		"เพิ่ม URL ฟีดด้านบนลงในโปรแกรมอ่าน RSS/Atom (เช่น NetNewsWire, Feedly, Inoreader, Follow) เพื่อรับการแจ้งเตือนบทความใหม่",
 	[Key.feedOpenXml]: "ดู XML ต้นฉบับ",
 	[Key.feedRecentPosts]: "บทความล่าสุดในฟีด",
+	[Key.menu]: "เมนู",
+	[Key.mainNavigation]: "การนำทางหลัก",
+	[Key.navigationDrawer]: "แผงนำทาง",
+	[Key.breadcrumb]: "เส้นทางนำทาง",
+	[Key.displaySettings]: "การตั้งค่าการแสดงผล",
+	[Key.searchPanel]: "แผงค้นหา",
+	[Key.lightDarkMode]: "โหมดสว่าง/มืด",
+	[Key.resetToDefault]: "รีเซ็ตเป็นค่าเริ่มต้น",
+	[Key.goToAboutPage]: "ไปยังหน้าเกี่ยวกับ",
 };

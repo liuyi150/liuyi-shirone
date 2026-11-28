@@ -24,6 +24,16 @@ export const tr: Translation = {
 	[Key.momentsBanner]: "Kısa notlar — hayat, iş ve küçük mutluluklar.",
 	[Key.momentsCount]: "an",
 	[Key.momentsCounts]: "an",
+	[Key.momentPasswordTitle]: "Korumalı an",
+	[Key.momentPasswordDescription]:
+		"Bu an şifrelenmiştir. İçeriğin kilidini açmak için parolayı girin.",
+	[Key.momentPasswordLabel]: "Parola",
+	[Key.momentPasswordShow]: "Parolayı göster",
+	[Key.momentPasswordHide]: "Parolayı gizle",
+	[Key.momentPasswordRequired]: "Bir parola girin",
+	[Key.momentPasswordInvalid]: "Yanlış parola",
+	[Key.momentPasswordUnlock]: "Anın kilidini aç",
+	[Key.momentPasswordUnlocking]: "Şifre çözülüyor…",
 	[Key.pinned]: "Sabitlenen",
 	[Key.loadMore]: "Daha fazla yükle",
 
@@ -178,6 +188,7 @@ export const tr: Translation = {
 	[Key.announcementClose]: "Duyuruyu Kapat",
 
 	[Key.comments]: "Yorumlar",
+	[Key.commentsEditor]: "Yorum içeriği",
 	[Key.commentsLoading]: "Yorumlar yükleniyor...",
 	[Key.commentsLoadFailed]: "Yorumlar yüklenemedi",
 	[Key.commentsRequiresJavaScript]:
@@ -213,6 +224,8 @@ export const tr: Translation = {
 	[Key.calendarPrevMonth]: "Önceki ay",
 	[Key.calendarNextMonth]: "Sonraki ay",
 
+	[Key.markdownTableExpand]: "Tabloyu genişlet",
+	[Key.markdownTablePreview]: "Tablo önizlemesi",
 	[Key.mermaidControls]: "Diyagram denetimleri",
 	[Key.mermaidZoomIn]: "Yakınlaştır",
 	[Key.mermaidZoomOut]: "Uzaklaştır",
@@ -248,7 +261,7 @@ export const tr: Translation = {
 		"Otomatik oynatma engellendi. Başlatmak için oynat düğmesine basın.",
 	[Key.musicErrorInvalidTrack]: "Bu parça geçersiz.",
 
-	[Key.themeColor]: "Theme Color",
+	[Key.themeColor]: "Tema Rengi",
 	[Key.colorStyle]: "Renk Stili",
 	[Key.colorSpec]: "Renk Spesifikasyonu",
 
@@ -275,6 +288,7 @@ export const tr: Translation = {
 	[Key.paginationNext]: "Sonraki sayfa",
 	[Key.paginationPage]: "Sayfa {page}",
 	[Key.paginationJump]: "Sayfaya git",
+	[Key.paginationLabel]: "Sayfalandırma",
 	[Key.tagsViewAll]: "Tüm etiketleri gör",
 
 	[Key.author]: "Yazar",
@@ -282,6 +296,7 @@ export const tr: Translation = {
 	[Key.lastUpdatedNotice]: "Son güncelleme: {date}, {days} gün önce",
 	[Key.lastUpdatedWarning]: "Bazı içerikler güncelliğini yitirmiş olabilir",
 	[Key.license]: "Lisans",
+	[Key.reprintSource]: "Kaynak",
 	[Key.continueReading]: "Okumaya devam et",
 	[Key.relatedReading]: "İlgili yazılar",
 	[Key.relatedReadingSubtitle]: "Ortak etiketlere ve kategorilere göre",
@@ -344,4 +359,13 @@ export const tr: Translation = {
 		"Yeni yazı bildirimleri almak için yukarıdaki bağlantıyı dilediğiniz RSS/Atom okuyucusuna (NetNewsWire, Feedly, Inoreader, Follow vb.) ekleyin.",
 	[Key.feedOpenXml]: "Ham XML'i Görüntüle",
 	[Key.feedRecentPosts]: "Akıştaki Son Yazılar",
+	[Key.menu]: "Menü",
+	[Key.mainNavigation]: "Ana gezinme",
+	[Key.navigationDrawer]: "Gezinme çekmecesi",
+	[Key.breadcrumb]: "Gezinme yolu",
+	[Key.displaySettings]: "Görünüm ayarları",
+	[Key.searchPanel]: "Arama paneli",
+	[Key.lightDarkMode]: "Açık/koyu mod",
+	[Key.resetToDefault]: "Varsayılana sıfırla",
+	[Key.goToAboutPage]: "Hakkında sayfasına git",
 };

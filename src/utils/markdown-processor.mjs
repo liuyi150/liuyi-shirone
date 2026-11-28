@@ -37,6 +37,7 @@ import { remarkFields } from "../plugins/markdown/remark-fields.mjs";
 import { remarkIncludes } from "../plugins/markdown/remark-includes.mjs";
 import { remarkMarker } from "../plugins/markdown/remark-marker.mjs";
 import { remarkOptionGroups } from "../plugins/markdown/remark-option-groups.mjs";
+import { remarkRestoreBareDirectives } from "../plugins/markdown/remark-restore-bare-directives.mjs";
 import { remarkYouTube } from "../plugins/markdown/remark-youtube.mjs";
 import { AcFunComponent } from "../plugins/rehype-component-acfun.mjs";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
@@ -49,6 +50,7 @@ import { MarkerComponent } from "../plugins/rehype-component-marker.mjs";
 import { SpoilerComponent } from "../plugins/rehype-component-spoiler.mjs";
 import { YouTubeComponent } from "../plugins/rehype-component-youtube.mjs";
 import { rehypeMarkdownImages } from "../plugins/rehype-markdown-images.mjs";
+import { rehypeMermaidFallback } from "../plugins/rehype-mermaid-fallback.mjs";
 import { rehypeResponsiveTables } from "../plugins/rehype-responsive-tables.mjs";
 import { parseDirectiveNode } from "../plugins/remark-directive-rehype.js";
 import { remarkEscapeNumericColons } from "../plugins/remark-escape-numeric-colons.mjs";
@@ -56,6 +58,10 @@ import { remarkExcerpt } from "../plugins/remark-excerpt.js";
 import { remarkFeatureProbes } from "../plugins/remark-feature-probes.mjs";
 import { remarkMermaid } from "../plugins/remark-mermaid.mjs";
 import { remarkReadingTime } from "../plugins/remark-reading-time.mjs";
+import {
+	extendMarkdownPlugins,
+	readMarkdownExtensions,
+} from "./markdown-extensions.mjs";
 
 // This processor is executed directly by Node tests, so avoid runtime imports
 // of TypeScript enums (unsupported by Node's strip-only TypeScript loader).
@@ -85,6 +91,7 @@ export const siteRemarkPlugins = [
 	remarkReadingTime,
 	remarkExcerpt,
 	remarkDirective,
+	remarkRestoreBareDirectives,
 	remarkAcFun,
 	remarkAudioReader,
 	remarkArtPlayer,
@@ -174,7 +181,34 @@ export const siteRehypePlugins = [
 		},
 	],
 	rehypeResponsiveTables,
+	rehypeMermaidFallback,
 ];
+
+/**
+ * Build the processor, with the Markdown plugins a project's plugin scripts
+ * registered (`docs/plugin-scripts.md`) inserted at their anchors.
+ *
+ * Without scripts the chains are `siteRemarkPlugins` and `siteRehypePlugins`
+ * themselves. The default argument reads what the integration published, so
+ * `siteMarkdownProcessor` below matches the processor Astro renders content
+ * with; the integration passes its extensions explicitly.
+ */
+export function createSiteMarkdownProcessor(
+	extensions = readMarkdownExtensions(),
+) {
+	return unified(
+		extendMarkdownPlugins(
+			{
+				remarkPlugins: siteRemarkPlugins,
+				rehypePlugins: siteRehypePlugins,
+				directive: remarkDirective,
+				probes: remarkFeatureProbes,
+				components: rehypeComponents,
+			},
+			extensions,
+		),
+	);
+}
 
 /**
  * 站点统一 markdown 处理器（单一事实来源）。
@@ -182,7 +216,4 @@ export const siteRehypePlugins = [
  * （如动态页正文 → HTML 字符串）共用同一条 remark/rehype 插件链，
  * 避免两处配置漂移。
  */
-export const siteMarkdownProcessor = unified({
-	remarkPlugins: siteRemarkPlugins,
-	rehypePlugins: siteRehypePlugins,
-});
+export const siteMarkdownProcessor = createSiteMarkdownProcessor();

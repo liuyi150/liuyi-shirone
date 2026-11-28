@@ -4,6 +4,8 @@
  * background inertness, and the browser focus trap.
  */
 
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
 import { prefersReducedMotion } from "@utils/motion";
 import { tick } from "svelte";
@@ -24,6 +26,7 @@ let {
 	class?: string;
 } = $props();
 
+const titleId = $props.id();
 let dialogEl = $state<HTMLDialogElement | undefined>();
 let rendering = $state(false);
 let closing = $state(false);
@@ -95,7 +98,7 @@ $effect(() => {
 	<dialog
 		class={`m3-dialog ${className}`}
 		class:closing
-		aria-label={title}
+		aria-labelledby={title ? titleId : undefined}
 		tabindex="-1"
 		bind:this={dialogEl}
 		oncancel={onCancel}
@@ -105,13 +108,13 @@ $effect(() => {
 		{#if title || showCloseButton}
 			<div class="m3-dialog__header">
 				{#if title}
-					<div class="m3-dialog__title">{title}</div>
+					<div class="m3-dialog__title" id={titleId}>{title}</div>
 				{/if}
 				{#if showCloseButton}
 					<button
 						type="button"
 						class="m3-dialog__close-btn m3-state-layer"
-						aria-label="Close"
+						aria-label={i18n(I18nKey.close)}
 						onclick={close}
 					>
 						<Icon icon="material-symbols:close-rounded" />

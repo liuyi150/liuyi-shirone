@@ -24,6 +24,16 @@ export const es: Translation = {
 	[Key.momentsBanner]: "Notas cortas — vida, trabajo y pequeñas alegrías.",
 	[Key.momentsCount]: "momento",
 	[Key.momentsCounts]: "momentos",
+	[Key.momentPasswordTitle]: "Momento protegido",
+	[Key.momentPasswordDescription]:
+		"Este momento está cifrado. Introduce la contraseña para desbloquear su contenido.",
+	[Key.momentPasswordLabel]: "Contraseña",
+	[Key.momentPasswordShow]: "Mostrar contraseña",
+	[Key.momentPasswordHide]: "Ocultar contraseña",
+	[Key.momentPasswordRequired]: "Introduce una contraseña",
+	[Key.momentPasswordInvalid]: "Contraseña incorrecta",
+	[Key.momentPasswordUnlock]: "Desbloquear momento",
+	[Key.momentPasswordUnlocking]: "Descifrando…",
 	[Key.pinned]: "Fijado",
 	[Key.loadMore]: "Cargar más",
 
@@ -178,6 +188,7 @@ export const es: Translation = {
 	[Key.announcementClose]: "Cerrar anuncio",
 
 	[Key.comments]: "Comentarios",
+	[Key.commentsEditor]: "Contenido del comentario",
 	[Key.commentsLoading]: "Cargando comentarios...",
 	[Key.commentsLoadFailed]: "Error al cargar comentarios",
 	[Key.commentsRequiresJavaScript]:
@@ -213,6 +224,8 @@ export const es: Translation = {
 	[Key.calendarPrevMonth]: "Mes anterior",
 	[Key.calendarNextMonth]: "Mes siguiente",
 
+	[Key.markdownTableExpand]: "Ampliar tabla",
+	[Key.markdownTablePreview]: "Vista previa de la tabla",
 	[Key.mermaidControls]: "Controles del diagrama",
 	[Key.mermaidZoomIn]: "Acercar",
 	[Key.mermaidZoomOut]: "Alejar",
@@ -248,7 +261,7 @@ export const es: Translation = {
 		"La reproducción automática está bloqueada. Pulsa reproducir para comenzar.",
 	[Key.musicErrorInvalidTrack]: "Esta pista no es válida.",
 
-	[Key.themeColor]: "Theme Color",
+	[Key.themeColor]: "Color del tema",
 	[Key.colorStyle]: "Estilo de color",
 	[Key.colorSpec]: "Especificación",
 
@@ -275,6 +288,7 @@ export const es: Translation = {
 	[Key.paginationNext]: "Página siguiente",
 	[Key.paginationPage]: "Página {page}",
 	[Key.paginationJump]: "Ir a la página",
+	[Key.paginationLabel]: "Paginación",
 	[Key.tagsViewAll]: "Ver todas las etiquetas",
 
 	[Key.author]: "Autor",
@@ -282,6 +296,7 @@ export const es: Translation = {
 	[Key.lastUpdatedNotice]: "Última actualización el {date}, hace {days} días",
 	[Key.lastUpdatedWarning]: "Parte del contenido puede estar desactualizado",
 	[Key.license]: "Licencia",
+	[Key.reprintSource]: "Reimpreso de",
 	[Key.continueReading]: "Seguir leyendo",
 	[Key.relatedReading]: "Lecturas relacionadas",
 	[Key.relatedReadingSubtitle]: "Basadas en etiquetas y categorías compartidas",
@@ -343,4 +358,13 @@ export const es: Translation = {
 		"Añade esta URL a tu lector RSS/Atom favorito (como NetNewsWire, Feedly, Inoreader o Follow) para recibir actualizaciones.",
 	[Key.feedOpenXml]: "Ver XML original",
 	[Key.feedRecentPosts]: "Artículos recientes del canal",
+	[Key.menu]: "Menú",
+	[Key.mainNavigation]: "Navegación principal",
+	[Key.navigationDrawer]: "Panel de navegación",
+	[Key.breadcrumb]: "Ruta de navegación",
+	[Key.displaySettings]: "Ajustes de pantalla",
+	[Key.searchPanel]: "Panel de búsqueda",
+	[Key.lightDarkMode]: "Modo claro/oscuro",
+	[Key.resetToDefault]: "Restablecer valores predeterminados",
+	[Key.goToAboutPage]: "Ir a la página Acerca de",
 };

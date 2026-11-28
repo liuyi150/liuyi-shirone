@@ -25,6 +25,16 @@ export const ja: Translation = {
 		"ふとした瞬間を気軽に記録 —— 日々、制作、そして小さな幸せ。",
 	[Key.momentsCount]: "件",
 	[Key.momentsCounts]: "件",
+	[Key.momentPasswordTitle]: "保護されたモーメント",
+	[Key.momentPasswordDescription]:
+		"このモーメントは暗号化されています。パスワードを入力して内容を解除してください。",
+	[Key.momentPasswordLabel]: "パスワード",
+	[Key.momentPasswordShow]: "パスワードを表示",
+	[Key.momentPasswordHide]: "パスワードを隠す",
+	[Key.momentPasswordRequired]: "パスワードを入力してください",
+	[Key.momentPasswordInvalid]: "パスワードが正しくありません",
+	[Key.momentPasswordUnlock]: "モーメントを解除",
+	[Key.momentPasswordUnlocking]: "復号中…",
 	[Key.pinned]: "ピン留め",
 	[Key.loadMore]: "もっと見る",
 
@@ -175,6 +185,7 @@ export const ja: Translation = {
 	[Key.announcementClose]: "告知を閉じる",
 
 	[Key.comments]: "コメント",
+	[Key.commentsEditor]: "コメント本文",
 	[Key.commentsLoading]: "コメントを読み込み中...",
 	[Key.commentsLoadFailed]: "コメントの読み込みに失敗しました",
 	[Key.commentsRequiresJavaScript]:
@@ -210,6 +221,8 @@ export const ja: Translation = {
 	[Key.calendarPrevMonth]: "前の月",
 	[Key.calendarNextMonth]: "次の月",
 
+	[Key.markdownTableExpand]: "表を拡大",
+	[Key.markdownTablePreview]: "表のプレビュー",
 	[Key.mermaidControls]: "図のコントロール",
 	[Key.mermaidZoomIn]: "拡大",
 	[Key.mermaidZoomOut]: "縮小",
@@ -245,7 +258,7 @@ export const ja: Translation = {
 		"自動再生がブロックされました。再生ボタンを押してください。",
 	[Key.musicErrorInvalidTrack]: "曲の情報が無効です。",
 
-	[Key.themeColor]: "Theme Color",
+	[Key.themeColor]: "テーマカラー",
 	[Key.colorStyle]: "配色スタイル",
 	[Key.colorSpec]: "配色仕様",
 
@@ -272,6 +285,7 @@ export const ja: Translation = {
 	[Key.paginationNext]: "次のページ",
 	[Key.paginationPage]: "{page} ページ",
 	[Key.paginationJump]: "ページへ移動",
+	[Key.paginationLabel]: "ページ切り替え",
 	[Key.tagsViewAll]: "すべてのタグを見る",
 
 	[Key.author]: "作者",
@@ -279,6 +293,7 @@ export const ja: Translation = {
 	[Key.lastUpdatedNotice]: "最終更新日: {date}（{days}日前）",
 	[Key.lastUpdatedWarning]: "一部の内容は古くなっている可能性があります",
 	[Key.license]: "ライセンス",
+	[Key.reprintSource]: "転載元",
 	[Key.continueReading]: "続きを読む",
 	[Key.relatedReading]: "関連記事",
 	[Key.relatedReadingSubtitle]: "共通するタグとカテゴリから",
@@ -340,4 +355,13 @@ export const ja: Translation = {
 		"上記の購読 URL をお好みの RSS/Atom リーダー（NetNewsWire、Feedly、Inoreader、Follow など）に登録すると、最新記事が通知されます。",
 	[Key.feedOpenXml]: "XML を直接表示",
 	[Key.feedRecentPosts]: "最新の配信記事",
+	[Key.menu]: "メニュー",
+	[Key.mainNavigation]: "メインナビゲーション",
+	[Key.navigationDrawer]: "ナビゲーションドロワー",
+	[Key.breadcrumb]: "パンくずリスト",
+	[Key.displaySettings]: "表示設定",
+	[Key.searchPanel]: "検索パネル",
+	[Key.lightDarkMode]: "ライト/ダークモード",
+	[Key.resetToDefault]: "既定に戻す",
+	[Key.goToAboutPage]: "About ページへ",
 };

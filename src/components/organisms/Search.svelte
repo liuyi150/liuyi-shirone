@@ -82,8 +82,8 @@ const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
 				await (
 					window as unknown as { __loadPagefind: () => Promise<unknown> }
 				).__loadPagefind();
-				pagefindLoaded = typeof window.pagefind?.search === "function";
 			}
+			pagefindLoaded = typeof window.pagefind?.search === "function";
 			if (pagefindLoaded && window.pagefind) {
 				const response = await window.pagefind.search(keyword);
 				searchResults = await Promise.all(
@@ -166,7 +166,7 @@ $: if (initialized) {
 <!-- toggle btn for phone/tablet view -->
 <IconButton
     icon="material-symbols:search"
-    label="Search Panel"
+    label={i18n(I18nKey.searchPanel)}
     id="search-switch"
     size="small"
     shape="round"

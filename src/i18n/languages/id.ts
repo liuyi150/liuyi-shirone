@@ -25,6 +25,16 @@ export const id: Translation = {
 		"Catatan singkat — kehidupan, karya, dan kebahagiaan kecil.",
 	[Key.momentsCount]: "momen",
 	[Key.momentsCounts]: "momen",
+	[Key.momentPasswordTitle]: "Momen terlindungi",
+	[Key.momentPasswordDescription]:
+		"Momen ini dienkripsi. Masukkan kata sandi untuk membuka kontennya.",
+	[Key.momentPasswordLabel]: "Kata sandi",
+	[Key.momentPasswordShow]: "Tampilkan kata sandi",
+	[Key.momentPasswordHide]: "Sembunyikan kata sandi",
+	[Key.momentPasswordRequired]: "Masukkan kata sandi",
+	[Key.momentPasswordInvalid]: "Kata sandi salah",
+	[Key.momentPasswordUnlock]: "Buka momen",
+	[Key.momentPasswordUnlocking]: "Mendekripsi…",
 	[Key.pinned]: "Disematkan",
 	[Key.loadMore]: "Muat lainnya",
 
@@ -180,6 +190,7 @@ export const id: Translation = {
 	[Key.announcementClose]: "Tutup pengumuman",
 
 	[Key.comments]: "Komentar",
+	[Key.commentsEditor]: "Isi komentar",
 	[Key.commentsLoading]: "Memuat komentar...",
 	[Key.commentsLoadFailed]: "Gagal memuat komentar",
 	[Key.commentsRequiresJavaScript]:
@@ -215,6 +226,8 @@ export const id: Translation = {
 	[Key.calendarPrevMonth]: "Bulan sebelumnya",
 	[Key.calendarNextMonth]: "Bulan berikutnya",
 
+	[Key.markdownTableExpand]: "Perbesar tabel",
+	[Key.markdownTablePreview]: "Pratinjau tabel",
 	[Key.mermaidControls]: "Kontrol diagram",
 	[Key.mermaidZoomIn]: "Perbesar",
 	[Key.mermaidZoomOut]: "Perkecil",
@@ -250,7 +263,7 @@ export const id: Translation = {
 		"Pemutaran otomatis diblokir. Tekan putar untuk memulai.",
 	[Key.musicErrorInvalidTrack]: "Lagu ini tidak valid.",
 
-	[Key.themeColor]: "Theme Color",
+	[Key.themeColor]: "Warna Tema",
 	[Key.colorStyle]: "Gaya Warna",
 	[Key.colorSpec]: "Spesifikasi Warna",
 
@@ -277,6 +290,7 @@ export const id: Translation = {
 	[Key.paginationNext]: "Halaman berikutnya",
 	[Key.paginationPage]: "Halaman {page}",
 	[Key.paginationJump]: "Lompat ke halaman",
+	[Key.paginationLabel]: "Navigasi halaman",
 	[Key.tagsViewAll]: "Lihat semua tag",
 
 	[Key.author]: "Penulis",
@@ -285,6 +299,7 @@ export const id: Translation = {
 		"Terakhir diperbarui pada {date}, {days} hari yang lalu",
 	[Key.lastUpdatedWarning]: "Sebagian konten mungkin sudah tidak berlaku",
 	[Key.license]: "Lisensi",
+	[Key.reprintSource]: "Sumber",
 	[Key.continueReading]: "Lanjut membaca",
 	[Key.relatedReading]: "Bacaan terkait",
 	[Key.relatedReadingSubtitle]: "Berdasarkan tag dan kategori yang sama",
@@ -346,4 +361,13 @@ export const id: Translation = {
 		"Tambahkan URL umpan di atas ke pembaca RSS/Atom favorit Anda (seperti NetNewsWire, Feedly, Inoreader, Follow) untuk menerima pembaruan.",
 	[Key.feedOpenXml]: "Lihat XML Asli",
 	[Key.feedRecentPosts]: "Artikel Terbaru di Umpan",
+	[Key.menu]: "Menu",
+	[Key.mainNavigation]: "Navigasi utama",
+	[Key.navigationDrawer]: "Laci navigasi",
+	[Key.breadcrumb]: "Remah navigasi",
+	[Key.displaySettings]: "Pengaturan tampilan",
+	[Key.searchPanel]: "Panel pencarian",
+	[Key.lightDarkMode]: "Mode terang/gelap",
+	[Key.resetToDefault]: "Atur ulang ke bawaan",
+	[Key.goToAboutPage]: "Buka halaman Tentang",
 };

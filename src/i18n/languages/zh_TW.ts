@@ -23,6 +23,16 @@ export const zh_TW: Translation = {
 	[Key.momentsBanner]: "隨手記錄的碎碎念 —— 生活、折騰與一切小確幸。",
 	[Key.momentsCount]: "則動態",
 	[Key.momentsCounts]: "則動態",
+	[Key.momentPasswordTitle]: "受保護的動態",
+	[Key.momentPasswordDescription]:
+		"此動態已加密保護，請輸入存取密碼以解鎖內容。",
+	[Key.momentPasswordLabel]: "存取密碼",
+	[Key.momentPasswordShow]: "顯示密碼",
+	[Key.momentPasswordHide]: "隱藏密碼",
+	[Key.momentPasswordRequired]: "請輸入密碼",
+	[Key.momentPasswordInvalid]: "密碼錯誤，請重新輸入",
+	[Key.momentPasswordUnlock]: "解鎖動態",
+	[Key.momentPasswordUnlocking]: "正在解密…",
 	[Key.pinned]: "置頂",
 	[Key.loadMore]: "載入更多",
 
@@ -169,6 +179,7 @@ export const zh_TW: Translation = {
 	[Key.announcementClose]: "關閉公告",
 
 	[Key.comments]: "評論",
+	[Key.commentsEditor]: "評論內容",
 	[Key.commentsLoading]: "正在載入評論...",
 	[Key.commentsLoadFailed]: "評論載入失敗",
 	[Key.commentsRequiresJavaScript]: "評論區需要啟用 JavaScript 才能顯示",
@@ -203,6 +214,8 @@ export const zh_TW: Translation = {
 	[Key.calendarPrevMonth]: "上一月",
 	[Key.calendarNextMonth]: "下一月",
 
+	[Key.markdownTableExpand]: "放大表格",
+	[Key.markdownTablePreview]: "表格預覽",
 	[Key.mermaidControls]: "圖表控制項",
 	[Key.mermaidZoomIn]: "放大",
 	[Key.mermaidZoomOut]: "縮小",
@@ -237,7 +250,7 @@ export const zh_TW: Translation = {
 	[Key.musicErrorAutoplayBlocked]: "自動播放受到限制，請點擊播放按鈕開始",
 	[Key.musicErrorInvalidTrack]: "歌曲資訊無效",
 
-	[Key.themeColor]: "Theme Color",
+	[Key.themeColor]: "主題色",
 	[Key.colorStyle]: "配色風格",
 	[Key.colorSpec]: "配色規範",
 
@@ -264,6 +277,7 @@ export const zh_TW: Translation = {
 	[Key.paginationNext]: "下一頁",
 	[Key.paginationPage]: "第 {page} 頁",
 	[Key.paginationJump]: "跳轉到頁面",
+	[Key.paginationLabel]: "分頁導覽",
 	[Key.tagsViewAll]: "查看全部標籤",
 
 	[Key.author]: "作者",
@@ -271,6 +285,7 @@ export const zh_TW: Translation = {
 	[Key.lastUpdatedNotice]: "最後更新於 {date}，距今已過 {days} 天",
 	[Key.lastUpdatedWarning]: "部分內容可能已過時",
 	[Key.license]: "許可協議",
+	[Key.reprintSource]: "轉載自",
 	[Key.continueReading]: "繼續閱讀",
 	[Key.relatedReading]: "沿著主題讀",
 	[Key.relatedReadingSubtitle]: "基於共同的標籤與分類",
@@ -329,4 +344,13 @@ export const zh_TW: Translation = {
 		"將上方訂閱網址新增至任意 RSS/Atom 閱讀器（如 NetNewsWire、Feedly、Inoreader、Follow 等），即可即時接收新文章推送。",
 	[Key.feedOpenXml]: "檢視原始 XML",
 	[Key.feedRecentPosts]: "最新推送文章",
+	[Key.menu]: "選單",
+	[Key.mainNavigation]: "主導覽",
+	[Key.navigationDrawer]: "導覽抽屜",
+	[Key.breadcrumb]: "麵包屑導覽",
+	[Key.displaySettings]: "顯示設定",
+	[Key.searchPanel]: "搜尋面板",
+	[Key.lightDarkMode]: "淺色/深色模式",
+	[Key.resetToDefault]: "恢復預設",
+	[Key.goToAboutPage]: "前往關於頁",
 };

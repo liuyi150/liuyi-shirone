@@ -24,6 +24,15 @@ enum I18nKey {
 	momentsBanner = "momentsBanner",
 	momentsCount = "momentsCount",
 	momentsCounts = "momentsCounts",
+	momentPasswordTitle = "momentPasswordTitle",
+	momentPasswordDescription = "momentPasswordDescription",
+	momentPasswordLabel = "momentPasswordLabel",
+	momentPasswordShow = "momentPasswordShow",
+	momentPasswordHide = "momentPasswordHide",
+	momentPasswordRequired = "momentPasswordRequired",
+	momentPasswordInvalid = "momentPasswordInvalid",
+	momentPasswordUnlock = "momentPasswordUnlock",
+	momentPasswordUnlocking = "momentPasswordUnlocking",
 	pinned = "pinned",
 	loadMore = "loadMore",
 
@@ -168,6 +177,7 @@ enum I18nKey {
 	announcementClose = "announcementClose",
 
 	comments = "comments",
+	commentsEditor = "commentsEditor",
 	commentsLoading = "commentsLoading",
 	commentsLoadFailed = "commentsLoadFailed",
 	commentsRequiresJavaScript = "commentsRequiresJavaScript",
@@ -202,6 +212,8 @@ enum I18nKey {
 	calendarPrevMonth = "calendarPrevMonth",
 	calendarNextMonth = "calendarNextMonth",
 
+	markdownTableExpand = "markdownTableExpand",
+	markdownTablePreview = "markdownTablePreview",
 	mermaidControls = "mermaidControls",
 	mermaidZoomIn = "mermaidZoomIn",
 	mermaidZoomOut = "mermaidZoomOut",
@@ -289,12 +301,14 @@ enum I18nKey {
 	paginationNext = "paginationNext",
 	paginationPage = "paginationPage",
 	paginationJump = "paginationJump",
+	paginationLabel = "paginationLabel",
 
 	author = "author",
 	publishedAt = "publishedAt",
 	lastUpdatedNotice = "lastUpdatedNotice",
 	lastUpdatedWarning = "lastUpdatedWarning",
 	license = "license",
+	reprintSource = "reprintSource",
 	continueReading = "continueReading",
 	relatedReading = "relatedReading",
 	relatedReadingSubtitle = "relatedReadingSubtitle",
@@ -331,6 +345,15 @@ enum I18nKey {
 	feedHowToUseDesc = "feedHowToUseDesc",
 	feedOpenXml = "feedOpenXml",
 	feedRecentPosts = "feedRecentPosts",
+	menu = "menu",
+	mainNavigation = "mainNavigation",
+	navigationDrawer = "navigationDrawer",
+	breadcrumb = "breadcrumb",
+	displaySettings = "displaySettings",
+	searchPanel = "searchPanel",
+	lightDarkMode = "lightDarkMode",
+	resetToDefault = "resetToDefault",
+	goToAboutPage = "goToAboutPage",
 }
 
 export default I18nKey;

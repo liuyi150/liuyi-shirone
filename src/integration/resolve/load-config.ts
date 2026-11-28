@@ -7,8 +7,10 @@ import {
 	unlinkSync,
 	writeFileSync,
 } from "node:fs";
+import { createRequire } from "node:module";
 import { join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
+import { aliasPattern, THEME_ALIASES } from "../aliases.ts";
 import type { ResolvedShironesPaths } from "../types.ts";
 import { normalisePath } from "./paths.ts";
 import {
@@ -65,16 +67,6 @@ export function probeFile(base: string): string | null {
 	return null;
 }
 
-const ALIAS_MAP: Record<string, string> = {
-	"@/": "",
-	"@components/": "components/",
-	"@utils/": "utils/",
-	"@layouts/": "layouts/",
-	"@i18n/": "i18n/",
-	"@constants/": "constants/",
-	"@assets/": "assets/",
-};
-
 /**
  * esbuild plugin mirroring the Vite overlay so Node-side and browser-side
  * resolve to the same files.
@@ -99,12 +91,13 @@ function overlayEsbuildPlugin(
 			// Theme path aliases (`@/config/...`, `@utils/...`, ...).
 			build.onResolve(
 				{
-					filter:
-						/^@(\/|components\/|utils\/|layouts\/|i18n\/|constants\/|assets\/)/,
+					filter: new RegExp(
+						`^(?:${THEME_ALIASES.map(([prefix]) => aliasPattern(prefix)).join("|")})`,
+					),
 				},
 				// biome-ignore lint/suspicious/noExplicitAny: see above.
 				(args: any) => {
-					for (const [prefix, sub] of Object.entries(ALIAS_MAP)) {
+					for (const [prefix, sub] of THEME_ALIASES) {
 						if (!args.path.startsWith(prefix)) continue;
 						const target = join(
 							paths.packageSrc,
@@ -117,6 +110,17 @@ function overlayEsbuildPlugin(
 					return undefined;
 				},
 			);
+
+			// rehype-katex@7 still declares KaTeX ^0.16. Workspace overrides do
+			// not reach npm consumers, so all
+			// renderer imports must use the theme's direct KaTeX dependency — the
+			// same package that supplies the page stylesheet.
+			const themeRequire = createRequire(
+				join(paths.packageRoot, "package.json"),
+			);
+			build.onResolve({ filter: /^katex$/ }, () => ({
+				path: themeRequire.resolve("katex"),
+			}));
 
 			// Relative imports: resolve, then apply user overrides.
 			//
@@ -172,6 +176,41 @@ function overlayEsbuildPlugin(
 				path: args.path,
 				external: true,
 			}));
+
+			// A plugin script may import what the theme itself depends on
+			// (`hastscript`, `unist-util-visit`, …). In the theme's repository
+			// those sit in the project's own `node_modules`; under pnpm's strict
+			// layout an installed theme's dependencies are invisible from the
+			// project. Retry from the package, so a script that works in one mode
+			// works in the other. Same idea as `vite/fallback-resolver.ts`.
+			//
+			// Registered last and limited to importers under the scripts
+			// directory: config modules resolve exactly as before.
+			const scriptsRoot = normalisePath(paths.scriptsDir);
+			// biome-ignore lint/suspicious/noExplicitAny: see above.
+			build.onResolve({ filter: /^[^./]/ }, async (args: any) => {
+				if (args.pluginData?.shironesFallback) return undefined;
+				const dir = normalisePath(args.resolveDir);
+				if (dir !== scriptsRoot && !dir.startsWith(`${scriptsRoot}/`)) {
+					return undefined;
+				}
+				const retry = {
+					kind: args.kind,
+					pluginData: { shironesFallback: true },
+				};
+				const direct = await build.resolve(args.path, {
+					...retry,
+					resolveDir: args.resolveDir,
+				});
+				if (direct.errors.length === 0) return undefined;
+				const fallback = await build.resolve(args.path, {
+					...retry,
+					resolveDir: paths.packageRoot,
+				});
+				return fallback.errors.length === 0
+					? { path: fallback.path, external: fallback.external }
+					: undefined;
+			});
 		},
 	};
 }
@@ -194,6 +233,34 @@ export async function loadModuleFile(
 	const cached = cache.get(cacheKey);
 	if (cached) return cached;
 
+	const { module } = await bundleAndImport(paths, entry, cacheKey, registryRef);
+	cache.set(cacheKey, module);
+	return module;
+}
+
+/**
+ * Like `loadModuleFile`, but never served from the in-process cache, and
+ * returning a digest of the bundle: of the file and everything it imports.
+ *
+ * For plugin scripts. They are read once per Astro start, so the cache would
+ * only ever hand a restarted dev server the script it was restarted to drop;
+ * and the digest is how a changed script invalidates Astro's content cache.
+ */
+export async function loadModuleFileFresh(
+	paths: ResolvedShironesPaths,
+	entry: string,
+	cacheKey: string,
+	registryRef?: OverrideRegistryRef,
+): Promise<{ module: LoadedModule; digest: string }> {
+	return bundleAndImport(paths, entry, cacheKey, registryRef);
+}
+
+async function bundleAndImport(
+	paths: ResolvedShironesPaths,
+	entry: string,
+	cacheKey: string,
+	registryRef?: OverrideRegistryRef,
+): Promise<{ module: LoadedModule; digest: string }> {
 	const { build } = await import("esbuild");
 	let result: Awaited<ReturnType<typeof build>>;
 	try {
@@ -238,8 +305,7 @@ export async function loadModuleFile(
 	pruneStaleBundles(paths, prefix, file);
 
 	const module = (await import(pathToFileURL(file).href)) as LoadedModule;
-	cache.set(cacheKey, module);
-	return module;
+	return { module, digest: hash };
 }
 
 /**

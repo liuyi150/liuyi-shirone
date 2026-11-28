@@ -24,6 +24,16 @@ export const ko: Translation = {
 	[Key.momentsBanner]: "일상과 작업, 그리고 사소한 행복을 짧게 기록합니다.",
 	[Key.momentsCount]: "개",
 	[Key.momentsCounts]: "개",
+	[Key.momentPasswordTitle]: "보호된 모먼트",
+	[Key.momentPasswordDescription]:
+		"이 모먼트는 암호화되어 있습니다. 비밀번호를 입력해 내용을 잠금 해제하세요.",
+	[Key.momentPasswordLabel]: "비밀번호",
+	[Key.momentPasswordShow]: "비밀번호 표시",
+	[Key.momentPasswordHide]: "비밀번호 숨기기",
+	[Key.momentPasswordRequired]: "비밀번호를 입력하세요",
+	[Key.momentPasswordInvalid]: "비밀번호가 올바르지 않습니다",
+	[Key.momentPasswordUnlock]: "모먼트 잠금 해제",
+	[Key.momentPasswordUnlocking]: "복호화 중…",
 	[Key.pinned]: "고정됨",
 	[Key.loadMore]: "더 보기",
 
@@ -175,6 +185,7 @@ export const ko: Translation = {
 	[Key.announcementClose]: "공지 닫기",
 
 	[Key.comments]: "댓글",
+	[Key.commentsEditor]: "댓글 내용",
 	[Key.commentsLoading]: "댓글을 불러오는 중...",
 	[Key.commentsLoadFailed]: "댓글을 불러오지 못했습니다",
 	[Key.commentsRequiresJavaScript]:
@@ -210,6 +221,8 @@ export const ko: Translation = {
 	[Key.calendarPrevMonth]: "이전 달",
 	[Key.calendarNextMonth]: "다음 달",
 
+	[Key.markdownTableExpand]: "표 확대",
+	[Key.markdownTablePreview]: "표 미리보기",
 	[Key.mermaidControls]: "다이어그램 컨트롤",
 	[Key.mermaidZoomIn]: "확대",
 	[Key.mermaidZoomOut]: "축소",
@@ -245,7 +258,7 @@ export const ko: Translation = {
 		"자동 재생이 차단되었습니다. 재생 버튼을 눌러 시작하세요.",
 	[Key.musicErrorInvalidTrack]: "곡 정보가 올바르지 않습니다.",
 
-	[Key.themeColor]: "Theme Color",
+	[Key.themeColor]: "테마 색상",
 	[Key.colorStyle]: "색상 스타일",
 	[Key.colorSpec]: "색상 규격",
 
@@ -272,6 +285,7 @@ export const ko: Translation = {
 	[Key.paginationNext]: "다음 페이지",
 	[Key.paginationPage]: "{page} 페이지",
 	[Key.paginationJump]: "페이지로 이동",
+	[Key.paginationLabel]: "페이지 탐색",
 	[Key.tagsViewAll]: "모든 태그 보기",
 
 	[Key.author]: "저자",
@@ -279,6 +293,7 @@ export const ko: Translation = {
 	[Key.lastUpdatedNotice]: "마지막 업데이트: {date} ({days}일 전)",
 	[Key.lastUpdatedWarning]: "일부 내용이 오래되었을 수 있습니다",
 	[Key.license]: "라이선스",
+	[Key.reprintSource]: "출처",
 	[Key.continueReading]: "계속 읽기",
 	[Key.relatedReading]: "관련 글",
 	[Key.relatedReadingSubtitle]: "공통 태그와 카테고리를 바탕으로",
@@ -340,4 +355,13 @@ export const ko: Translation = {
 		"위 주소를 선호하는 RSS/Atom 리더기(NetNewsWire, Feedly, Inoreader, Follow 등)에 등록하여 새 글 알림을 받아보세요.",
 	[Key.feedOpenXml]: "원본 XML 보기",
 	[Key.feedRecentPosts]: "피드 최신 글",
+	[Key.menu]: "메뉴",
+	[Key.mainNavigation]: "기본 탐색",
+	[Key.navigationDrawer]: "탐색 서랍",
+	[Key.breadcrumb]: "이동 경로",
+	[Key.displaySettings]: "화면 설정",
+	[Key.searchPanel]: "검색 패널",
+	[Key.lightDarkMode]: "라이트/다크 모드",
+	[Key.resetToDefault]: "기본값으로 재설정",
+	[Key.goToAboutPage]: "소개 페이지로 이동",
 };

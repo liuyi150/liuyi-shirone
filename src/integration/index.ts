@@ -1,12 +1,11 @@
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import type { AstroIntegration } from "astro";
 import {
 	expressiveCodeShared,
 	IMAGE_ENDPOINT_ROUTE,
-	iconInclude,
 	isMusicBundleFile,
 	MUSIC_SIDEBAR_VIRTUAL_ID,
 	mdxOptions,
@@ -17,7 +16,17 @@ import {
 	TRAILING_SLASH,
 	viteBuildShared,
 } from "../config/integrationsConfig.ts";
+import { publishMarkdownExtensions } from "../utils/markdown-extensions.mjs";
+import { ALIAS_NAMESPACES, aliasPattern, THEME_ALIASES } from "./aliases.ts";
 import { buildFontDeclarations } from "./fonts.ts";
+import { indexPagefindDirectory } from "./pagefind.ts";
+import {
+	emptyContributions,
+	loadPluginScripts,
+	type PluginContributions,
+	resolveInjectedRoutes,
+	runPlugins,
+} from "./plugins.ts";
 import {
 	invalidateConfigCache,
 	loadConfigModule,
@@ -27,11 +36,16 @@ import { normalisePath, resolvePaths } from "./resolve/paths.ts";
 import {
 	buildOverrideRegistry,
 	createOverlayTargets,
+	findLegacyIconImports,
 	findOrphanUserFiles,
 	type OverrideRegistryRef,
 } from "./resolve/registry.ts";
 import { collectRoutes, filterRoutes } from "./routes.ts";
 import type { ResolvedShironesPaths, ShironesOptions } from "./types.ts";
+import {
+	reportPeerViolations,
+	verifyPeerRequirements,
+} from "./verify-peers.ts";
 import { shironesFallbackResolver } from "./vite/fallback-resolver.ts";
 import { shironesIconRegeneration } from "./vite/icon/regeneration.ts";
 import { shironesOverlay } from "./vite/overlay.ts";
@@ -90,14 +104,10 @@ function createAliases(paths: ResolvedShironesPaths) {
 			find: /^@iconify\/svelte$/,
 			replacement: join(src, "components/atoms/display/Icon.svelte"),
 		},
-		{ find: /^@components\//, replacement: `${join(src, "components")}/` },
-		{ find: /^@utils\//, replacement: `${join(src, "utils")}/` },
-		{ find: /^@layouts\//, replacement: `${join(src, "layouts")}/` },
-		{ find: /^@i18n\//, replacement: `${join(src, "i18n")}/` },
-		{ find: /^@constants\//, replacement: `${join(src, "constants")}/` },
-		{ find: /^@assets\//, replacement: `${join(src, "assets")}/` },
-		// Keep `@/` last: it is the broadest pattern.
-		{ find: /^@\//, replacement: `${src}/` },
+		...THEME_ALIASES.map(([prefix, sub]) => ({
+			find: new RegExp(`^${aliasPattern(prefix)}`),
+			replacement: sub ? `${join(src, sub)}/` : `${src}/`,
+		})),
 	];
 }
 
@@ -158,6 +168,8 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 	// Mutable holder shared by config:setup (which builds the registry) and
 	// server:setup (which rebuilds it when an override file changes in dev).
 	const registryRef: OverrideRegistryRef = { overrides: new Map() };
+	// What the project's plugin scripts registered; read again at build:done.
+	let plugins: PluginContributions = emptyContributions();
 
 	return {
 		name: "shirones",
@@ -171,6 +183,22 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 				logger,
 			}) => {
 				paths = resolvePaths(options, config.root, import.meta.url);
+
+				// Before anything else: a missing peer dependency fails later as a
+				// resolution error inside a bundled plugin, which names neither the
+				// dependency nor the fix. The theme repo is self-sufficient, so only
+				// package mode is checked.
+				const peerViolations = verifyPeerRequirements({
+					packageRoot: paths.packageRoot,
+					projectRoot: paths.projectRoot,
+					skip: paths.isThemeRepo,
+				});
+				if (reportPeerViolations(peerViolations, logger, paths.projectRoot)) {
+					throw new Error(
+						"[shirones] the project is missing dependencies the theme requires — " +
+							"see the error above for the list and the install command.",
+					);
+				}
 
 				logger.info(
 					`${paths.isThemeRepo ? "theme repository" : "installed package"} mode | content: ${paths.contentDir}`,
@@ -214,6 +242,22 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 								`${orphans.map((file) => `  - ${file}`).join("\n")}\n` +
 								"  This usually means the theme renamed a config module — " +
 								"check the release notes and move your edits across.",
+						);
+					}
+
+					// An override copied out of the theme before the icon rewrite
+					// still imports `astro-icon`, which no longer resolves, so
+					// its icons render as nothing. Say so, rather than letting a
+					// build fail on a module-not-found with no hint of why.
+					const legacyIconFiles = findLegacyIconImports(registry.overrides);
+					if (legacyIconFiles.length > 0) {
+						logger.warn(
+							`[overrides] ${legacyIconFiles.length} file(s) still import ` +
+								"`astro-icon`, which the theme no longer uses:\n" +
+								`${legacyIconFiles.map((file) => `  - ${file}`).join("\n")}\n` +
+								"  Import `atoms/display/Icon.svelte` instead and pass " +
+								'`icon="prefix:name"` — it renders server-side SVG from a ' +
+								"build-time collection, so no hydration island is needed.",
 						);
 					}
 				}
@@ -281,6 +325,26 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 					addWatchFile(pathToFileURL(paths.configDir));
 				}
 
+				// ── 2.5. Plugin scripts ─────────────────────────────────────────
+				// Before fonts, Markdown, icons and routes: each of them takes
+				// something a script may have registered. See plugins.ts.
+				plugins = await runPlugins(
+					await loadPluginScripts(paths, registryRef),
+					{ paths, command, logger },
+				);
+				if (plugins.names.length > 0) {
+					logger.info(
+						`[plugins] ${plugins.names.length} loaded from ${paths.scriptsDir}: ${plugins.names.join(", ")}`,
+					);
+				}
+				// Restart the dev server when a script changes. Astro restarts
+				// only for the exact paths it is given here, which cannot name a
+				// script that does not exist yet; so the directory is registered,
+				// and server:setup reports a change inside it as a change of it.
+				if (command === "dev") {
+					addWatchFile(pathToFileURL(paths.scriptsDir));
+				}
+
 				// ── 3. Fonts ────────────────────────────────────────────────────
 				const fonts = await buildFontDeclarations(
 					paths,
@@ -289,7 +353,8 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 						// charset scan; `fonts.ts` additionally requires
 						// `fontConfig.subsetting.enable`, so both must hold.
 						subset: options.fonts?.subset ?? command === "build",
-						extraCharacters: options.fonts?.extraCharacters ?? "",
+						extraCharacters:
+							(options.fonts?.extraCharacters ?? "") + plugins.fontCharacters,
 					},
 					{
 						info: (m) => logger.info(`[fonts] ${m}`),
@@ -303,7 +368,16 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 					paths,
 					"utils/markdown-processor.mjs",
 				);
-				const processor = markdownModule.siteMarkdownProcessor;
+				// Published before the site's own code can import the processor:
+				// that copy reads the extensions back (see markdown-extensions.mjs).
+				// Unconditional, so a restart after the last script is deleted
+				// clears what the previous start published.
+				publishMarkdownExtensions(plugins.markdown);
+				const processor = (
+					markdownModule.createSiteMarkdownProcessor as (
+						extensions: PluginContributions["markdown"],
+					) => unknown
+				)(plugins.markdown);
 
 				// ── 5. Bundled integrations ─────────────────────────────────────
 				const integrations =
@@ -334,7 +408,23 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 					integrations,
 					markdown: { processor: processor as never },
 					vite: {
-						resolve: { alias: createAliases(paths) },
+						// Lets the site's server code check that it sees the same
+						// plugin-script Markdown extensions as this process.
+						define: {
+							__SHIRONES_MARKDOWN_DIGEST__: JSON.stringify(
+								plugins.markdown.digest,
+							),
+						},
+						resolve: {
+							alias: createAliases(paths),
+							// Layout.astro resolves the default color scheme at build
+							// time; this package ships extensionless ESM imports that
+							// Node cannot load when externalized, so Vite bundles it.
+							noExternal: ["@material/material-color-utilities"],
+						},
+						// `as never`: DeepPartial<AstroConfig> maps arrays into a
+						// partial element type, which no precisely typed PluginOption[]
+						// can satisfy; the array's own elements stay checked above.
 						plugins: [
 							// The overlay rewriter redirects user files onto package
 							// files; inside the theme's own repository every import already
@@ -349,18 +439,25 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 										}),
 									]),
 							shironesFallbackResolver(paths),
-							shironesIconRegeneration(paths, logger),
+							shironesIconRegeneration(paths, logger, [
+								...Object.values(options.components ?? {}).map((target) =>
+									resolve(paths.projectRoot, target),
+								),
+								...plugins.iconSources,
+							]),
 							shironesThumbnailsRegeneration(paths),
 							shironesSsrNodeShims(),
 							createMusicSidebarPlugin(paths, musicEnabled),
 							(await import("@tailwindcss/vite")).default(),
-						],
+						] as never,
 						optimizeDeps: {
 							// Only pre-bundle what the *user's* project can actually
 							// resolve. Under pnpm's strict layout these are nested
 							// inside the package, and listing an unresolvable id makes
 							// Vite log a warning for every one of them on every build.
 							include: prebundleCandidates(paths, prebundleSpecifiers),
+							// Package mode only — see `prebundleExclude`.
+							exclude: prebundleExclude(paths),
 						},
 						// `viteBuildShared` deliberately omits any console-stripping
 						// config: stripping console.log from a user's own code in
@@ -389,17 +486,25 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 				});
 
 				// ── 7. Inject the theme's routes ────────────────────────────────
-				if (!paths.isThemeRepo && options.injectRoutes !== false) {
-					const routes = filterRoutes(
-						collectRoutes(join(paths.packageSrc, "pages")),
-						options.excludeRoutes,
-					);
-					for (const route of routes) {
-						injectRoute({
-							pattern: route.pattern,
-							entrypoint: route.entrypoint,
-						});
-					}
+				// The theme's own routes exist as injected routes only in package
+				// mode; a plugin's `routes.add` is injected in both.
+				const injectsThemeRoutes =
+					!paths.isThemeRepo && options.injectRoutes !== false;
+				const routes = resolveInjectedRoutes(
+					injectsThemeRoutes
+						? filterRoutes(
+								collectRoutes(join(paths.packageSrc, "pages")),
+								options.excludeRoutes,
+							)
+						: null,
+					plugins.routes,
+					logger,
+					paths.isThemeRepo
+						? undefined
+						: "`injectRoutes: false` leaves the theme's pages out altogether",
+				);
+				for (const route of routes) injectRoute(route);
+				if (injectsThemeRoutes || routes.length > 0) {
 					logger.info(`injected ${routes.length} routes`);
 				}
 			},
@@ -413,6 +518,18 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 					// does not also match.
 					if (file.startsWith(`${paths.configDir}/`)) {
 						invalidateConfigCache();
+					}
+				});
+
+				// See "2.5. Plugin scripts": scripts are read once per start.
+				const scriptsDir = normalisePath(paths.scriptsDir);
+				server.watcher.on("all", (event, file) => {
+					if (typeof file !== "string") return;
+					if (event !== "add" && event !== "change" && event !== "unlink") {
+						return;
+					}
+					if (normalisePath(file).startsWith(`${scriptsDir}/`)) {
+						server.watcher.emit("change", paths.scriptsDir);
 					}
 				});
 
@@ -433,18 +550,37 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 			},
 
 			"astro:build:done": async ({ dir, logger }) => {
+				// Plugin scripts first, so a script that rewrites the output is
+				// indexed as it left it. A failing handler fails the build.
+				for (const { plugin, handler } of plugins.buildDone) {
+					try {
+						await handler({
+							dir: fileURLToPath(dir),
+							logger: {
+								info: (message) => logger.info(`[${plugin}] ${message}`),
+								warn: (message) => logger.warn(`[${plugin}] ${message}`),
+							},
+						});
+					} catch (error) {
+						throw new Error(
+							`[shirones] plugin "${plugin}" threw in onBuildDone(): ${
+								error instanceof Error ? error.message : String(error)
+							}`,
+							{ cause: error },
+						);
+					}
+				}
+
 				// The theme's own repository keeps its `pagefind --site dist` CLI
 				// build step, which honours the repository's `pagefind.yml`
 				// (workers, exclusions, ...). Indexing here as well would build
 				// the index twice.
 				if (options.pagefind === false || paths.isThemeRepo) return;
-				const outDir = dir.pathname;
 				try {
 					const pagefind = await import("pagefind");
 					const { index } = await pagefind.createIndex({});
 					if (!index) throw new Error("Pagefind failed to create an index");
-					await index.addDirectory({ path: outDir });
-					await index.writeFiles({ outputPath: join(outDir, "pagefind") });
+					await indexPagefindDirectory(dir, index);
 					logger.info("pagefind index generated");
 				} catch (error) {
 					logger.warn(
@@ -484,6 +620,12 @@ export function prebundleCandidates(
 	return specifiers;
 }
 
+/** Package mode only: alias imports resolve into `node_modules`, where Vite's
+ * dep scanner would pre-bundle them without the overlay. See pitfalls §1.9. */
+export function prebundleExclude(paths: ResolvedShironesPaths): string[] {
+	return paths.isThemeRepo ? [] : ALIAS_NAMESPACES;
+}
+
 /**
  * Instantiate the integrations the theme depends on. Users get them for free so
  * a fresh project only needs `integrations: [shirones()]`.
@@ -505,7 +647,6 @@ async function createBundledIntegrations(
 ) {
 	const [
 		{ default: swup },
-		{ default: icon },
 		{ default: expressiveCode },
 		{ default: svelte, vitePreprocess },
 		{ default: sitemap },
@@ -514,7 +655,6 @@ async function createBundledIntegrations(
 		{ pluginLineNumbers },
 	] = await Promise.all([
 		import("@swup/astro"),
-		import("astro-icon"),
 		import("astro-expressive-code"),
 		import("@astrojs/svelte"),
 		import("@astrojs/sitemap"),
@@ -569,7 +709,6 @@ async function createBundledIntegrations(
 	return [
 		...(oddmiscIntegration ? [oddmiscIntegration] : []),
 		swup({ ...swupOptions, ...swupForwardOptions }),
-		icon({ include: iconInclude }),
 		expressiveCode({
 			// `themes` is built here rather than shared: it reads
 			// expressiveCodeConfig, which this mode loads through

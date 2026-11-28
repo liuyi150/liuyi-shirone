@@ -12,8 +12,8 @@
 
 [English](./README.md) · [简体中文](./README.zh-CN.md) · [繁體中文](./README.zh-TW.md) · [日本語](./README.ja.md)
 
-![Node.js >= 22.12](https://img.shields.io/badge/Node.js-%3E%3D22.12-5FA04E?logo=nodedotjs&logoColor=white)
-![pnpm 9](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white)
+![Node.js >= 26.13.0](https://img.shields.io/badge/Node.js-%3E%3D26.13.0-5FA04E?logo=nodedotjs&logoColor=white)
+![pnpm 11](https://img.shields.io/badge/pnpm-11-F69220?logo=pnpm&logoColor=white)
 ![Astro 7](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639.svg)](./LICENSE)
 
@@ -73,8 +73,8 @@ Shirone 是一个使用 Astro 7、Svelte 5、Tailwind CSS 4 和 Stylus 构建的
 
 ### 环境要求
 
-- [Node.js](https://nodejs.org/) 22.12 或更高版本
-- [pnpm](https://pnpm.io/) 9.x（仓库锁定为 `pnpm@9.14.4`）
+- [Node.js](https://nodejs.org/) 26.13.0 或更高版本
+- [pnpm](https://pnpm.io/) 11.x（仓库锁定为 `pnpm@11.28.2`）
 
 ### 本地运行
 
@@ -101,7 +101,7 @@ npx shirones init   # 写入 package.json，安装 astro、主题及其 peer 依
 pnpm dev
 ```
 
-`init` 会生成 `astro.config.mjs`、`shirones/` 下的类型化配置、示例内容与静态资源；你依然可以通过 `src/components/` 和 `src/layouts/` 覆盖主题组件。随时重新运行 `npx shirones init` 检查漂移（只报告、不修改）；运行 `npx shirones init --update` 恢复缺失文件，或 `--force` 从模板重新初始化。详见 [shirones wiki](https://github.com/yCENzh/shirones/wiki)、[npm 包模式](./docs/npm-package-mode.md) 与 [shirones 仓库](https://github.com/yCENzh/shirones)。
+`init` 会生成 `astro.config.mjs`、`shirones/` 下的类型化配置、示例内容与静态资源；你依然可以通过 `src/components/` 和 `src/layouts/` 覆盖主题组件。随时重新运行 `npx shirones init` 检查漂移（只报告、不修改）；运行 `npx shirones init --update` 恢复缺失文件，或 `--force` 从模板重新初始化。`public/` 由你自行取舍：删掉的文件既不会被报告，也不会被恢复；需要找回模板资源时运行 `npx shirones init --public`。详见 [shirones wiki](https://github.com/yCENzh/shirones/wiki)、[npm 包模式](./docs/npm-package-mode.md) 与 [shirones 仓库](https://github.com/yCENzh/shirones)。
 
 ### 定制站点
 
